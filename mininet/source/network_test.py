@@ -20,4 +20,3 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.util import dumpNodeConnections
 
-from utils.monitor import *
