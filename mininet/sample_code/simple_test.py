@@ -8,7 +8,9 @@ from mininet.node import RemoteController
 
 class SingleSwitchTopo(Topo):
     "Single switch connected to n hosts."
-    def build(self, n=2):
+    def __init__(self, n=2, **opts):
+        # Initialize topology and default options
+        Topo.__init__(self, **opts)
         switch = self.addSwitch('s1')
         # Python's range(N) generates 0..N-1
         for h in range(n):
@@ -19,7 +21,7 @@ def simpleTest():
     "Create and test a simple network"
     topo = SingleSwitchTopo(n=4)
     controller_ip = '127.0.0.1'
-    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=16633))
+    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633))
     net.start()
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
