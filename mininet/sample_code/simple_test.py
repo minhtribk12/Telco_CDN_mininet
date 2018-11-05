@@ -17,7 +17,8 @@ class SingleSwitchTopo(Topo):
 def simpleTest():
     "Create and test a simple network"
     topo = SingleSwitchTopo(n=4)
-    net = Mininet(topo)
+    controller_ip = '127.0.0.1'
+    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=16633))
     net.start()
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
