@@ -28,10 +28,21 @@ dataset_path = "./content_popularity/timestamp_{}.csv".format(data_timestamp)
 dataset_all = pd.read_csv(dataset_path,names=["counts","content_id"], sep=";")
 
 sum_all_request = dataset_all["counts"].sum()
-print(sum_all_request)
+counts_101 = dataset_all.iloc[100].counts
+sum_head_101 = dataset_all["counts"].head(101).sum()
+num_request = sum_head_101 / counts_101
 
 def sum_element(df, start, end):
     return df.iloc[start:end, [0]]["counts"].sum()
+
+# def cal_num_request(idx):
+#     if idx <= 100:
+#         return sum_head_101 / counts_101
+#     else:
+#         return (sum_head_101 - counts_101) / counts_100
+
+def cal_hit_request(counts,prob):
+    return sum_all_request*prob*(1-((1-prob)**(num_request+1)))
 
 def classification(Prob,thres):
     if Prob/4 > thres:
@@ -82,9 +93,122 @@ def colorize(Class, index):
         return [0,0,0,0]
 # init value
 
-dataset_all["Prob"] = dataset_all["counts"]*1000/sum_all_request
-threshold = 0.82
-dataset_all["Class"] = dataset_all.apply(lambda row: classification(row.Prob, threshold) , axis=1) 
-dataset_all["Index"] = range(0,len(dataset_all))
-dataset_all["Color"] = dataset_all.apply(lambda row: colorize(row.Class, row.Index) , axis=1) 
-dataset_all[["content_id","Color"]].to_csv("./result/colored_{}.csv".format(data_timestamp), header=False, sep=";", index=False)
+dataset_all = dataset_all[dataset_all["counts"] > 0]
+dataset_all["prob"] = dataset_all["counts"]/sum_all_request
+#dataset_all["idx"] = range(0,len(dataset_all))
+dataset_all["hit_request"] = dataset_all.apply(lambda row: cal_hit_request(row.counts, row.prob) , axis=1) 
+print(dataset_all)
+
+
+sum_hit = 0
+remain_slot = 400.0
+total_slot = 400.0
+rate = 0.0
+b = 100
+c = 250
+sum_max = 0
+a_max = 0
+found_a = False
+for a in range (0,50):
+    d = 400 - a - b - c
+    if found_a:
+        break
+    for index, row in dataset_all.iterrows():
+        remain = remain_slot
+        if index < a:
+            rate = 1.0
+            remain_slot = remain_slot - 4.0
+        elif index < a+b:
+            rate = 0.75
+            remain_slot = remain_slot - (3.0*0.75)
+        elif index < a+b+c:
+            rate = 0.5
+            remain_slot = remain_slot - (2.0*0.5)
+        elif index < a+b+c+d:
+            rate = 0.25
+            remain_slot = remain_slot - (1.0*0.25)
+        sum_hit = sum_hit + rate*remain*row["hit_request"]/total_slot
+        if remain_slot <= 0:
+            if (sum_hit > sum_max):
+                sum_max = sum_hit
+                a_max = a
+            if (sum_hit < sum_max):
+                found_a = True
+                print("A: %d"%a_max)
+                print("Sum in A: %f"%sum_hit)
+            sum_hit = 0
+            remain_slot = 400
+            break
+
+a = a_max
+b_max = 0
+sum_max = 0
+found_b = False
+for b in range (a_max,100):
+    d = 400 - a - b - c
+    if found_b:
+        break
+    for index, row in dataset_all.iterrows():
+        remain = remain_slot
+        if index < a:
+            rate = 1.0
+            remain_slot = remain_slot - 4.0
+        elif index < a+b:
+            rate = 0.75
+            remain_slot = remain_slot - (3.0*0.75)
+        elif index < a+b+c:
+            rate = 0.5
+            remain_slot = remain_slot - (2.0*0.5)
+        elif index < a+b+c+d:
+            rate = 0.25
+            remain_slot = remain_slot - (1.0*0.25)
+        sum_hit = sum_hit + rate*remain*row["hit_request"]/total_slot
+        if remain_slot <= 0:
+            if (sum_hit > sum_max):
+                sum_max = sum_hit
+                b_max = b
+            if (sum_hit < sum_max):
+                found_b = True
+                print("B: %d"%b_max)
+                print("Sum in B: %f"%sum_hit)
+            sum_hit = 0
+            remain_slot = 400
+            break
+
+a = a_max
+b = b_max
+c_max = 0
+sum_max = 0
+found_c = False
+for c in range (b_max,150):
+    d = 400 - a - b - c
+    if found_c:
+        break
+    for index, row in dataset_all.iterrows():
+        remain = remain_slot
+        if index < a:
+            rate = 1.0
+            remain_slot = remain_slot - 4.0
+        elif index < a+b:
+            rate = 0.75
+            remain_slot = remain_slot - (3.0*0.75)
+        elif index < a+b+c:
+            rate = 0.5
+            remain_slot = remain_slot - (2.0*0.5)
+        elif index < a+b+c+d:
+            rate = 0.25
+            remain_slot = remain_slot - (1.0*0.25)
+        sum_hit = sum_hit + rate*remain*row["hit_request"]/total_slot
+        if remain_slot <= 0:
+            if (sum_hit > sum_max):
+                sum_max = sum_hit
+                c_max = c
+            if (sum_hit < sum_max):
+                found_c = True
+                print("C: %d"%c_max)
+                print("Sum in C: %f"%sum_hit)
+            sum_hit = 0
+            remain_slot = 400
+            break
+d_max = 400 - a_max - b_max - c_max
+print("D: %d"%d_max)
