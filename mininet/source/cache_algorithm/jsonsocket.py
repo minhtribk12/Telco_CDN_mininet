@@ -78,23 +78,19 @@ class Client(object):
 
     def connect(self, host, port):
         self.socket = socket.socket()
-        counter = 0
-        while counter < 10:
-            try:
-                self.socket.connect((host, port))
-                break
-            except socket.error as e:
-                print("Error occurs in socket {}: {}".format(self.socket,e))
-                counter += 1
-                time.sleep(1)
+        try:
+            self.socket.connect((host, port))
+            return self, True
+        except socket.error as e:
+            print("Error occurs in socket {}: {}".format(self.socket,e))
+            return self, False
         #self.socket.connect((host, port))
-        return self
 
     def send(self, data):
         if not self.socket:
             raise Exception('You have to connect first before sending data')
-        _send(self.socket, data)
-        return self
+        return _send(self.socket, data)
+        
 
     def recv(self):
         if not self.socket:
@@ -119,33 +115,27 @@ def _send(socket, data):
     except (TypeError, ValueError), e:
         raise Exception('You can only send JSON-serializable data')
     # send the length of the serialized data first
-    counter = 0
-    while counter < 10:
-        try:
-            socket.send('%d\n' % len(serialized))
-            # send the serialized data
-            socket.sendall(serialized)
-            break
-        except:
-            print("Data can't not sent on socket {}".format(socket))
-            counter += 1
-            time.sleep(1)
+    try:
+        socket.send('%d\n' % len(serialized))
+        # send the serialized data
+        socket.sendall(serialized)
+        return True
+    except:
+        print("Data can't not sent on socket {}".format(socket))
+        return False
+    
 
 def _recv(socket):
     # read the length of the data, letter by letter until we reach EOL
     length_str = ''
-    counter = 0
-    while counter < 10:
-        try:
+    try:
+        char = socket.recv(1)
+        while char != '\n':
+            length_str += char
             char = socket.recv(1)
-            while char != '\n':
-                length_str += char
-                char = socket.recv(1)
-            break
-        except:
-            print("Can't receive data from socket {}".format(socket))
-            counter += 1
-            time.sleep(1)
+    except:
+        print("Can't receive data from socket {}".format(socket))
+
     total = int(length_str)
     # use a memoryview to receive the data chunk by chunk efficiently
     view = memoryview(bytearray(total))
