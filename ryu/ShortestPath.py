@@ -131,7 +131,7 @@ class ProjectController(app_manager.RyuApp):
         if msg.buffer_id == ofp.OFP_NO_BUFFER:
             data = msg.data
 
-        out = parser.OFPPacketOut(datapath=dp, buffer_id=msg.buffer_id,
+        out = ofp_parser.OFPPacketOut(datapath=dp, buffer_id=msg.buffer_id,
                                   in_port=in_port, actions=actions, data=data)
         dp.send_msg(out)
 
