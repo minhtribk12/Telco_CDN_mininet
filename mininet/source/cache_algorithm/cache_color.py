@@ -4,6 +4,7 @@ from lfu_cache import *
 import socket, json, time, threading, SocketServer, argparse
 from ast import literal_eval
 from jsonsocket import Client, _send, _recv
+import os, os.path
 
 # Parse cache number
 parser = argparse.ArgumentParser(description="Cache Server")
@@ -355,9 +356,11 @@ if (cache_id != 100):
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 
-
+DIR = './result'
 while True:
+    if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
+        break
     print("Waiting for connection")
-    time.sleep(5)
+    time.sleep(1)
 server.shutdown()
 server.server_close()
