@@ -62,17 +62,18 @@ class shortest_path(app_manager.RyuApp):
 			return
 		
 		# arp
-		pkt_arp = pkt.get_protocol(arp.arp)
-		if pkt_ethernet.ethertype == 2054:
-			print "arp"
-			self.handle_arp(dp, port, pkt_ethernet, pkt_arp)
-			return
+		#pkt_arp = pkt.get_protocol(arp.arp)
+		#if pkt_ethernet.ethertype == 2054:
+		#	print "arp"
+		#	self.handle_arp(dp, port, pkt_ethernet, pkt_arp)
+		#	return
 		# forwarded by shortest path
 		if not self.net.has_node(pkt_ethernet.src):
 			print "add %s in self.net" % pkt_ethernet.src
 			self.net.add_node(pkt_ethernet.src)
 			self.net.add_edge(pkt_ethernet.src, dp.id)
-			self.net.add_edge(dp.id, pkt_ethernet.src, {'port':port})
+			self.net.add_edge(dp.id, pkt_ethernet.src)
+            		self.net.edges[dp.id, pkt_ethernet.src].update({'port':port})
 			print self.net.node
 
 		if self.net.has_node(pkt_ethernet.dst):
