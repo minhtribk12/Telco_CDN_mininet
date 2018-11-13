@@ -7,9 +7,8 @@ from mininet.log import setLogLevel
 from mininet.node import RemoteController
 from mininet.link import Link, TCLink
 
-class SingleSwitchTopo(Topo):
-    "Single switch connected to n hosts."
-    def __init__(self, n=2, **opts):
+class RingTopo(Topo):
+    def __init__(self, **opts):
         # Initialize topology and default options
         Topo.__init__(self, **opts)
 
@@ -44,8 +43,7 @@ class SingleSwitchTopo(Topo):
         #     self.addLink(host, switch)
 
 def simpleTest():
-    "Create and test a simple network"
-    topo = SingleSwitchTopo(n=4)
+    topo = { 'RingTopo': ( lambda: RingTopo() ) }
     controller_ip = '127.0.0.1'
     net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633), link=TCLink)
     net.start()
