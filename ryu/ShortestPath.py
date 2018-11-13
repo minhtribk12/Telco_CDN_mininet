@@ -86,20 +86,23 @@ class ProjectController(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
-	msg= ev.msg
-	dp = msg.datapath
-	ofp = dp.ofproto
-	ofp_parser = dp.ofproto_parser
+        msg= ev.msg
+        dp = msg.datapath
+        ofp = dp.ofproto
+        ofp_parser = dp.ofproto_parser
 
-	in_port = msg.match['in_port']
+        in_port = msg.match['in_port']
 
-	pkt = packet.Packet(data=msg.data)
+        pkt = packet.Packet(data=msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
         dst = eth.dst
         src = eth.src
         dpid = dp.id
 
+        if eth.ethertype == 35020:
+            self.get_topology_data()
+            return
         # self.mac_to_port.setdefault(dpid, {})
 
         if src not in self.net:
