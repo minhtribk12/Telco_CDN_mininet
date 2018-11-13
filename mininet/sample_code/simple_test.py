@@ -27,16 +27,16 @@ class RingTopo(Topo):
         host100 = self.addHost('h100', mac='00:00:00:00:00:64', ip='10.0.0.101/24' )
 
         # Add link
-        self.addLink(host0, switch0)
-        self.addLink(host1, switch1)
-        self.addLink(host2, switch2)
-        self.addLink(host3, switch3)
-        self.addLink(host100, switch100)
         self.addLink(switch0, switch1)
         self.addLink(switch1, switch2)
         self.addLink(switch2, switch3)
         self.addLink(switch3, switch0)
         self.addLink(switch100, switch2)
+        self.addLink(host0, switch0)
+        self.addLink(host1, switch1)
+        self.addLink(host2, switch2)
+        self.addLink(host3, switch3)
+        self.addLink(host100, switch100)
         # Python's range(N) generates 0..N-1
         # for h in range(n):
         #     host = self.addHost('h%s' % (h + 1))
