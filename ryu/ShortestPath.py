@@ -89,7 +89,7 @@ class ProjectController(app_manager.RyuApp):
 	ofp = dp.ofproto
 	ofp_parser = dp.ofproto_parser
 
-	port = msg.match['in_port']
+	in_port = msg.match['in_port']
 
 	pkt = packet.Packet(data=msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
