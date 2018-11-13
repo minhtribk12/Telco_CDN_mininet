@@ -139,7 +139,7 @@ class ProjectController(app_manager.RyuApp):
         dp.send_msg(out)
 
     @set_ev_cls(event.EventSwitchEnter)
-    def get_topology_data(self, ev):
+    def get_topology_data(self):
         switch_list = get_switch(self.topology_api_app, None)
 
         switches = [switch.dp.id for switch in switch_list]
