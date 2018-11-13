@@ -84,19 +84,21 @@ class ProjectController(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
-        msg = ev.msg
-        datapath = msg.datapath
-        ofproto = datapath.ofproto
-        in_port = msg.match['in_port']
+	msg= ev.msg
+	dp = msg.datapath
+	ofp = dp.ofproto
+	ofp_parser = dp.ofproto_parser
 
-        pkt = packet.Packet(msg.data)
+	port = msg.match['in_port']
+
+	pkt = packet.Packet(data=msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
         dst = eth.dst
         src = eth.src
         dpid = datapath.id
 
-        self.mac_to_port.setdefault(dpid, {})
+        # self.mac_to_port.setdefault(dpid, {})
 
         if src not in self.net:
             self.net.add_node(src)
@@ -104,12 +106,10 @@ class ProjectController(app_manager.RyuApp):
             self.net.edges[dpid, src].update({'port':in_port})
             self.net.add_edge(src, dpid)
         if dst in self.net:
-
             path = nx.shortest_path(self.net, src, dst)
             next = path[path.index(dpid) + 1]
             out_port = self.net[dpid][next]['port']
         else:
-            # print('|--- dst not in net')
             out_port = ofproto.OFPP_FLOOD
 
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -130,38 +130,15 @@ class ProjectController(app_manager.RyuApp):
         switches = [switch.dp.id for switch in switch_list]
         self.net.add_nodes_from(switches)
 
-        # print "**********List of switches"
-        # for switch in switch_list:
-        # self.ls(switch)
-        # print switch
-        # self.nodes[self.no_of_nodes] = switch
-        # self.no_of_nodes += 1
-
         links_list = get_link(self.topology_api_app, None)
-        # print links_list
+
         links = [(link.src.dpid, link.dst.dpid, {'port': link.src.port_no}) for link in links_list]
-        # print links
+
         self.net.add_edges_from(links)
         links = [(link.dst.dpid, link.src.dpid, {'port': link.dst.port_no}) for link in links_list]
-        # print links
+
         self.net.add_edges_from(links)
         print "**********List of links"
         print self.net.edges()
-        # for link in links_list:
-        # print link.dst
-        # print link.src
-        # print "Novo link"
-        # self.no_of_links += 1
 
-    # print "@@@@@@@@@@@@@@@@@Printing both arrays@@@@@@@@@@@@@@@"
-    # for node in self.nodes:
-#    print self.nodes[node]
-# for link in self.links:
-#    print self.links[link]
-# print self.no_of_nodes
-# print self.no_of_links
 
-# @set_ev_cls(event.EventLinkAdd)
-# def get_links(self, ev):
-# print "################Something##############"
-# print ev.link.src, ev.link.dst
