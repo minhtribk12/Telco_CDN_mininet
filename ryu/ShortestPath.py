@@ -69,17 +69,19 @@ class ProjectController(app_manager.RyuApp):
     def ls(self, obj):
         print("\n".join([x for x in dir(obj) if x[0] != "_"]))
 
-    def add_flow(self, datapath, in_port, dst, actions):
+    def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
 
-        match = datapath.ofproto_parser.OFPMatch(
-            in_port=in_port, dl_dst=haddr_to_bin(dst))
-
-        mod = datapath.ofproto_parser.OFPFlowMod(
-            datapath=datapath, match=match, cookie=0,
-            command=ofproto.OFPFC_ADD, idle_timeout=0, hard_timeout=0,
-            priority=ofproto.OFP_DEFAULT_PRIORITY,
-            flags=ofproto.OFPFF_SEND_FLOW_REM, actions=actions)
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
+                                             actions)]
+        if buffer_id:
+            mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
+                                    priority=priority, match=match,
+                                    instructions=inst)
+        else:
+            mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
+                                    match=match, instructions=inst)
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -116,11 +118,21 @@ class ProjectController(app_manager.RyuApp):
 
         # install a flow to avoid packet_in next time
         if out_port != ofp.OFPP_FLOOD:
-            self.add_flow(dp, in_port, dst, actions)
+            match = ofp_parser.OFPMatch(in_port=in_port, eth_dst=dst)
+            # verify if we have a valid buffer_id, if yes avoid to send both
+            # flow_mod & packet_out
+            if msg.buffer_id != ofp.OFP_NO_BUFFER:
+                self.add_flow(dp, 100, match, actions, msg.buffer_id)
+                return
+            else:
+                self.add_flow(dp, 100, match, actions)
 
-        out = dp.ofproto_parser.OFPPacketOut(
-            datapath=dp, buffer_id=msg.buffer_id, in_port=in_port,
-            actions=actions)
+        data = None
+        if msg.buffer_id == ofp.OFP_NO_BUFFER:
+            data = msg.data
+
+        out = parser.OFPPacketOut(datapath=dp, buffer_id=msg.buffer_id,
+                                  in_port=in_port, actions=actions, data=data)
         dp.send_msg(out)
 
     @set_ev_cls(event.EventSwitchEnter)
