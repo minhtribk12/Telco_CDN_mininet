@@ -46,7 +46,7 @@ class RingTopo(Topo):
 def simpleTest():
     topo = RingTopo()
     controller_ip = '127.0.0.1'
-    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633), link=TCLink)
+    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633))
     net.start()
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
