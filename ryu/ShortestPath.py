@@ -121,7 +121,7 @@ class ProjectController(app_manager.RyuApp):
         out = dp.ofproto_parser.OFPPacketOut(
             datapath=dp, buffer_id=msg.buffer_id, in_port=in_port,
             actions=actions)
-        datapath.send_msg(out)
+        dp.send_msg(out)
 
     @set_ev_cls(event.EventSwitchEnter)
     def get_topology_data(self, ev):
