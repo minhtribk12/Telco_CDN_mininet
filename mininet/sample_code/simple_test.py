@@ -37,18 +37,19 @@ class RingTopo(Topo):
         self.addLink(host2, switch2)
         self.addLink(host3, switch3)
         self.addLink(host100, switch100)
+        
         # Python's range(N) generates 0..N-1
         # for h in range(n):
         #     host = self.addHost('h%s' % (h + 1))
         #     self.addLink(host, switch)
 
 def simpleTest():
-    topo = { 'RingTopo': ( lambda: RingTopo() ) }
+    topo = RingTopo()
     controller_ip = '127.0.0.1'
     net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633), link=TCLink)
     net.start()
-    #print "Dumping host connections"
-    #dumpNodeConnections(net.hosts)
+    print "Dumping host connections"
+    dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
     net.pingAll()
     net.stop()
