@@ -5,6 +5,7 @@ from mininet.net import Mininet
 from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
+from mininet.link import Link, TCLink
 
 class SingleSwitchTopo(Topo):
     "Single switch connected to n hosts."
@@ -20,11 +21,11 @@ class SingleSwitchTopo(Topo):
         switch100 = self.addSwitch('s100')
         
         # Add host
-        host0 = self.addHost('h0')
-        host1 = self.addHost('h1')
-        host2 = self.addHost('h2')
-        host3 = self.addHost('h3')
-        host100 = self.addHost('h100')
+        host0 = self.addHost('h0', mac='00:00:00:00:00:01', ip='10.0.0.1/24' )
+        host1 = self.addHost('h1', mac='00:00:00:00:00:02', ip='10.0.0.2/24' )
+        host2 = self.addHost('h2', mac='00:00:00:00:00:03', ip='10.0.0.3/24' )
+        host3 = self.addHost('h3', mac='00:00:00:00:00:04', ip='10.0.0.4/24' )
+        host100 = self.addHost('h100', mac='00:00:00:00:00:64', ip='10.0.0.101/24' )
 
         # Add link
         self.addLink(host0, switch0)
@@ -46,10 +47,10 @@ def simpleTest():
     "Create and test a simple network"
     topo = SingleSwitchTopo(n=4)
     controller_ip = '127.0.0.1'
-    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633))
+    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633), link=TCLink)
     net.start()
     print "Dumping host connections"
-    #dumpNodeConnections(net.hosts)
+    dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
     net.pingAll()
     net.stop()
