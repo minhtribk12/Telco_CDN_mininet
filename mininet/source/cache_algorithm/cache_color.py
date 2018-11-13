@@ -36,19 +36,6 @@ lock_request = threading.Lock()
 lock_response = threading.Lock()
 
 # Init some IP, port for test
-this_ip = "127.0.0.1"
-this_port = 10000 + cache_id
-
-default_port = 10100
-if cache_id == 0:
-    default_port = 10001
-elif cache_id == 1:
-    default_port = 10002
-elif cache_id == 2:
-    default_port = 10100
-elif cache_id == 3:
-    default_port = 10002
-
 request_ip_table = {
     "red": "127.0.0.1",
     "green": "127.0.0.1",
@@ -56,61 +43,48 @@ request_ip_table = {
     "yellow": "127.0.0.1",
     "default": "127.0.0.1"
 }
-#base_ip = 
-base_port = cache_id - (cache_id % 4)
-
 request_port_table = {
-    "red": 10000 + base_port,
-    "green": 10000 + base_port + 1,
-    "blue": 10000 + base_port + 2,
-    "yellow": 10000 + base_port + 3,
-    "default": default_port
+    "red": 10000,
+    "green": 10000,
+    "blue": 10000,
+    "yellow": 10000,
+    "default": 10100
 }
 
-if cache_id == 0:
-    request_port_table = {
-        "red": 10000 + base_port,
-        "green": 10000 + base_port + 1,
-        "blue": 10000 + base_port + 1,
-        "yellow": 10000 + base_port + 3,
-        "default": default_port
-    }
-elif cache_id == 1:
-    request_port_table = {
-        "red": 10000 + base_port,
-        "green": 10000 + base_port + 1,
-        "blue": 10000 + base_port + 2,
-        "yellow": 10000 + base_port + 2,
-        "default": default_port
-    }
-elif cache_id == 2:
-    request_port_table = {
-        "red": 10000 + base_port + 3,
-        "green": 10000 + base_port + 1,
-        "blue": 10000 + base_port + 2,
-        "yellow": 10000 + base_port + 3,
-        "default": default_port
-    }
-elif cache_id == 3:
-    request_port_table = {
-        "red": 10000 + base_port,
-        "green": 10000 + base_port,
-        "blue": 10000 + base_port + 2,
-        "yellow": 10000 + base_port + 3,
-        "default": default_port
-    }
+# Read IP table
+ip_table_path = "./ip_table/ip_table.csv"
+df_ip_table = pd.read_csv(ip_table_path,names=["cache_id", "this_ip", "this_port", "red_ip", "red_port", "green_ip", "green_port", "blue_ip", "blue_port", "yellow_ip", "yellow_port", "default_ip", "default_port"], sep=",")
+this_ip_df = df_ip_table[df_ip_table["cache_id"] == cache_id]
+
+this_ip = this_ip_df.iloc[0]["this_ip"]
+this_port = this_ip_df.iloc[0]["this_port"]
+
+request_ip_table["red"] = this_ip_df.iloc[0]["red_ip"]
+request_ip_table["green"] = this_ip_df.iloc[0]["green_ip"]
+request_ip_table["blue"] = this_ip_df.iloc[0]["blue_ip"]
+request_ip_table["yellow"] = this_ip_df.iloc[0]["yellow_ip"]
+request_ip_table["default"] = this_ip_df.iloc[0]["default_ip"]
+
+request_port_table["red"] = this_ip_df.iloc[0]["red_port"]
+request_port_table["green"] = this_ip_df.iloc[0]["green_port"]
+request_port_table["blue"] = this_ip_df.iloc[0]["blue_port"]
+request_port_table["yellow"] = this_ip_df.iloc[0]["yellow_port"]
+request_port_table["default"] = this_ip_df.iloc[0]["default_port"]
 
 # Create dataframe containing request with its color
 request_path = "./request/Cache_{}.csv".format(cache_id+1)
 request = pd.read_csv(request_path,names=["content_id"], sep=";")
 
+# Read content rank & color
 rank_path = "./rank/colored_{}.csv".format(time_dataset)
 content_rank = pd.read_csv(rank_path,names=["content_id", "color"], sep=";")
+
+# Create requests
 df_request = pd.merge(request, content_rank, on="content_id", how="left")
 df_request["is_request"] = 1
 df_request["hop_count"] = 0
-df_request["source_ip"] = "127.0.0.1"
-df_request["source_port"] = 10000+cache_id
+df_request["source_ip"] = this_ip
+df_request["source_port"] = this_port
 df_request["visited"] = df_request["color"]
 
 
@@ -154,7 +128,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
     socket = None
     sent = False
     counter = 0
-    while (counter < 10) & (sent == False):
+    while (counter < 5) & (sent == False):
         client_soc = Client()
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
@@ -174,7 +148,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
     socket = None
     sent = False
     counter = 0
-    while (counter < 10) & (sent == False):
+    while (counter < 5) & (sent == False):
         client_soc = Client()
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
