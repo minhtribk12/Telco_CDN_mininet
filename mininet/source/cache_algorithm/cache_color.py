@@ -345,7 +345,12 @@ if (cache_id != 100):
             lock_response.release()
     server_thread.join(10.0)
     # Print results for debug
-    print(server.responsed_table["hop_count"].sum())
+    df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
+    sum_hop_count = server.responsed_table["hop_count"].sum()
+    df_result = df_result.append({"cache_id": cache_id, 
+                                    "sum_hop": sum_hop_count}, ignore_index=True)
+    df_result.to_csv("./result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
+    
     # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())

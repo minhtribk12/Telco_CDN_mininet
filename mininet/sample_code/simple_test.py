@@ -12,6 +12,10 @@ class SingleSwitchTopo(Topo):
         # Initialize topology and default options
         Topo.__init__(self, **opts)
         switch = self.addSwitch('s1')
+        switch = self.addSwitch('s2')
+        switch = self.addSwitch('s3')
+        switch = self.addSwitch('s4')
+        switch = self.addSwitch('s5')
         # Python's range(N) generates 0..N-1
         for h in range(n):
             host = self.addHost('h%s' % (h + 1))
