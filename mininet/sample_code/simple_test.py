@@ -49,7 +49,7 @@ def simpleTest():
     net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633))
     net.start()
     print "Dumping host connections"
-    dumpNodeConnections(net.hosts)
+    #dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
     net.pingAll()
     net.stop()
