@@ -110,16 +110,16 @@ class ProjectController(app_manager.RyuApp):
             next = path[path.index(dpid) + 1]
             out_port = self.net[dpid][next]['port']
         else:
-            out_port = ofproto.OFPP_FLOOD
+            out_port = ofp.OFPP_FLOOD
 
-        actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+        actions = [ofp_parser.OFPActionOutput(out_port)]
 
         # install a flow to avoid packet_in next time
-        if out_port != ofproto.OFPP_FLOOD:
-            self.add_flow(datapath, in_port, dst, actions)
+        if out_port != ofp.OFPP_FLOOD:
+            self.add_flow(dp, in_port, dst, actions)
 
-        out = datapath.ofproto_parser.OFPPacketOut(
-            datapath=datapath, buffer_id=msg.buffer_id, in_port=in_port,
+        out = dp.ofproto_parser.OFPPacketOut(
+            datapath=dp, buffer_id=msg.buffer_id, in_port=in_port,
             actions=actions)
         datapath.send_msg(out)
 
