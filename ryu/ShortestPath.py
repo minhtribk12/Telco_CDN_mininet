@@ -96,7 +96,7 @@ class ProjectController(app_manager.RyuApp):
 
         dst = eth.dst
         src = eth.src
-        dpid = datapath.id
+        dpid = dp.id
 
         # self.mac_to_port.setdefault(dpid, {})
 
