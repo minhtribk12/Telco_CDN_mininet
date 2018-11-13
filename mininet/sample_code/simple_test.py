@@ -6,6 +6,7 @@ from mininet.util import dumpNodeConnections
 from mininet.log import setLogLevel
 from mininet.node import RemoteController
 from mininet.link import Link, TCLink
+from mininet.cli import CLI 
 
 class RingTopo(Topo):
     def __init__(self, **opts):
@@ -46,12 +47,13 @@ class RingTopo(Topo):
 def simpleTest():
     topo = RingTopo()
     controller_ip = '127.0.0.1'
-    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633))
+    net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633), link=TCLink)
     net.start()
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
-    net.pingAll()
+    CLI(net)
+    #net.pingAll()
     net.stop()
 
 if __name__ == '__main__':
