@@ -50,6 +50,7 @@ def simpleTest():
     net.start()
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
+    dumpNodeConnections(net.switchs)
     print "Testing network connectivity"
     net.pingAll()
     net.stop()
