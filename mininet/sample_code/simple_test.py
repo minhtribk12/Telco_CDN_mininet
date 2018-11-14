@@ -64,7 +64,7 @@ def simpleTest():
     h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 &')
     h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 &')
     h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 &')
-    h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
+    print h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
     sleep(2)
     net.stop()
 
