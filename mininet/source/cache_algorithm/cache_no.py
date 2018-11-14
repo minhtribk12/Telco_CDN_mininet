@@ -135,7 +135,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
         counter += 1
         if (count == 5):
             lock_log.acquire()
-            with open("log_{}.txt".format(cache_id), "a+") as logfile:
+            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
                 logfile.write("Request {} can not be sent".format(data["content_id"]))
             lock_log.release()
             break
@@ -161,7 +161,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
         counter += 1
         if (count == 5):
             lock_log.acquire()
-            with open("log_{}.txt".format(cache_id), "a+") as logfile:
+            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
                 logfile.write("Request {} can not be sent".format(data["content_id"]))
             lock_log.release()
             break
@@ -280,7 +280,9 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 ###################################### Main script body ################################################################## 
 # Create server object
 server = ThreadedTCPServer((this_ip, this_port), ThreadedTCPRequestHandler)
-
+DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
+if not os.path.exists(DIR):
+    os.makedirs(DIR)
 # Init 2 table as server resources
 server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
@@ -330,11 +332,12 @@ if (cache_id != 100):
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 
-DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 while True:
-    if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
+    numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    if (numfile >= 4):
+        print("All servers are finished: {}".format(numfile))
         break
-    print("Waiting for connection")
+    print("Number of servers are finished: {}".format(numfile))
     time.sleep(1)
 server.shutdown()
 server.server_close()

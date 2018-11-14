@@ -62,19 +62,20 @@ def simpleTest():
     h2 = net.getNodeByName("h2")
     h3 = net.getNodeByName("h3")
     h100 = net.getNodeByName("h100")
-    h0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 > log_console_0.txt &')
-    h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 > log_console_1.txt &')
-    h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 > log_console_2.txt &')
-    h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 > log_console_3.txt &')
-    h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100 > log_console_100.txt &')
+    h0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 > /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_0.txt &')
+    h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 > /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_1.txt &')
+    h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 > /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_2.txt &')
+    h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 > /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_3.txt &')
+    h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100 > /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_100.txt &')
     DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
     if not os.path.exists(DIR):
         os.makedirs(DIR)
     while True:
         numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
         if (numfile >= 4):
+            print("All servers are finished: {}".format(numfile))
             break
-        print("Number of file I see: {}".format(numfile))
+        print("Number of servers are finished: {}".format(numfile))
         sleep(1)
     net.stop()
 

@@ -373,8 +373,9 @@ if (cache_id != 100):
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
     if (numfile >= 4):
+        print("All servers are finished: {}".format(numfile))
         break
-    print("Number of file I see: {}".format(numfile))
+    print("Number of servers are finished: {}".format(numfile))
     time.sleep(1)
 server.shutdown()
 server.server_close()
