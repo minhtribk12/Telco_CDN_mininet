@@ -22,11 +22,11 @@ class RingTopo(Topo):
         switch100 = self.addSwitch('s100', protocols='OpenFlow13')
         
         # Add host
-        self.host0 = self.addHost('h0', mac='00:00:00:00:00:01', ip='10.0.0.1/24' )
-        self.host1 = self.addHost('h1', mac='00:00:00:00:00:02', ip='10.0.0.2/24' )
-        self.host2 = self.addHost('h2', mac='00:00:00:00:00:03', ip='10.0.0.3/24' )
-        self.host3 = self.addHost('h3', mac='00:00:00:00:00:04', ip='10.0.0.4/24' )
-        self.host100 = self.addHost('h100', mac='00:00:00:00:00:64', ip='10.0.0.101/24' )
+        host0 = self.addHost('h0', mac='00:00:00:00:00:01', ip='10.0.0.1/24' )
+        host1 = self.addHost('h1', mac='00:00:00:00:00:02', ip='10.0.0.2/24' )
+        host2 = self.addHost('h2', mac='00:00:00:00:00:03', ip='10.0.0.3/24' )
+        host3 = self.addHost('h3', mac='00:00:00:00:00:04', ip='10.0.0.4/24' )
+        host100 = self.addHost('h100', mac='00:00:00:00:00:64', ip='10.0.0.101/24' )
 
         # Add link
         self.addLink(switch0, switch1)
@@ -34,11 +34,11 @@ class RingTopo(Topo):
         self.addLink(switch2, switch3)
         self.addLink(switch3, switch0)
         self.addLink(switch100, switch2)
-        self.addLink(self.host0, switch0)
-        self.addLink(self.host1, switch1)
-        self.addLink(self.host2, switch2)
-        self.addLink(self.host3, switch3)
-        self.addLink(self.host100, switch100)
+        self.addLink(host0, switch0)
+        self.addLink(host1, switch1)
+        self.addLink(host2, switch2)
+        self.addLink(host3, switch3)
+        self.addLink(host100, switch100)
         
         # Python's range(N) generates 0..N-1
         # for h in range(n):
@@ -55,11 +55,16 @@ def simpleTest():
     print "Testing network connectivity"
     sleep(5)
     net.pingAll()
-    net.host0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 &')
-    net.host1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 &')
-    net.host2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 &')
-    net.host3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 &')
-    net.host100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
+    h0 = net.getNodeByName("h0")
+    h1 = net.getNodeByName("h1")
+    h2 = net.getNodeByName("h2")
+    h3 = net.getNodeByName("h3")
+    h100 = net.getNodeByName("h100")
+    h0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 &')
+    h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 &')
+    h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 &')
+    h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 &')
+    h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
     sleep(2)
     net.stop()
 
