@@ -369,7 +369,7 @@ if (cache_id != 100):
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 
-DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
+DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/'
 while True:
     if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
         break
