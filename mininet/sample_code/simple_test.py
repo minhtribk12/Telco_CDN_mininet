@@ -67,7 +67,7 @@ def simpleTest():
     h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 > log_console_2.txt &')
     h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 > log_console_3.txt &')
     h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100 > log_console_100.txt &')
-    DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
+    DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
     if not os.path.exists(DIR):
         os.makedirs(DIR)
     while True:

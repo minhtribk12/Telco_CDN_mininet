@@ -5,7 +5,6 @@ import socket, json, time, threading, SocketServer, argparse
 from ast import literal_eval
 from jsonsocket import Client, _send, _recv
 import os, os.path
-from stat import *
 
 # Parse cache number
 parser = argparse.ArgumentParser(description="Cache Server")
@@ -55,7 +54,7 @@ request_port_table = {
 }
 
 # Read IP table
-ip_table_path = "~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/ip_table/ip_table.csv"
+ip_table_path = "/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/ip_table/ip_table.csv"
 df_ip_table = pd.read_csv(ip_table_path,names=["cache_id", "this_ip", "this_port", "red_ip", "red_port", "green_ip", "green_port", "blue_ip", "blue_port", "yellow_ip", "yellow_port", "default_ip", "default_port"], sep=",")
 this_ip_df = df_ip_table[df_ip_table["cache_id"] == cache_id]
 
@@ -75,11 +74,11 @@ request_port_table["yellow"] = this_ip_df.iloc[0]["yellow_port"]
 request_port_table["default"] = this_ip_df.iloc[0]["default_port"]
 
 # Create dataframe containing request with its color
-request_path = "~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/request/Cache_{}.csv".format(cache_id+1)
+request_path = "/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/request/Cache_{}.csv".format(cache_id+1)
 request = pd.read_csv(request_path,names=["content_id"], sep=";")
 
 # Read content rank & color
-rank_path = "~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/rank/colored_{}.csv".format(time_dataset)
+rank_path = "/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/rank/colored_{}.csv".format(time_dataset)
 content_rank = pd.read_csv(rank_path,names=["content_id", "color"], sep=";")
 
 # Create requests
@@ -142,7 +141,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
         counter += 1
         if (count == 5):
             lock_log.acquire()
-            with open("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
+            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
                 logfile.write("Request {} can not be sent".format(data["content_id"]))
             lock_log.release()
             break
@@ -168,7 +167,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
         counter += 1
         if (count == 5):
             lock_log.acquire()
-            with open("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/logfile_{}.txt".format(cache_id), "a+") as logfile:
+            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/logfile_{}.txt".format(cache_id), "a+") as logfile:
                 logfile.write("Response {} can not be sent".format(data["content_id"]))
             lock_log.release()
             break
@@ -307,7 +306,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 ###################################### Main script body ################################################################## 
 # Create server object
 server = ThreadedTCPServer((this_ip, this_port), ThreadedTCPRequestHandler)
-DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
+DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 if not os.path.exists(DIR):
     os.makedirs(DIR)
 # Init 2 table as server resources
@@ -366,8 +365,8 @@ if (cache_id != 100):
     sum_hop_count = server.responsed_table["hop_count"].sum()
     df_result = df_result.append({"cache_id": cache_id, 
                                     "sum_hop": sum_hop_count}, ignore_index=True)
-    df_result.to_csv("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
-    os.chmod("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+    df_result.to_csv("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
+    
     # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
