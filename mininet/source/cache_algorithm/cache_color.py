@@ -371,9 +371,10 @@ if (cache_id != 100):
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 while True:
-    if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
+    numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    if (numfile >= 4):
         break
-    print("Waiting for connection")
+    print("Number of file I see: {}".format(numfile))
     time.sleep(1)
 server.shutdown()
 server.server_close()

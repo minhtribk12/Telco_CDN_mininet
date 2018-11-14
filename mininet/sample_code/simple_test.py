@@ -70,8 +70,10 @@ def simpleTest():
     if not os.path.exists(DIR):
         os.makedirs(DIR)
     while True:
-        if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
+        numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+        if (numfile >= 4):
             break
+        print("Number of file I see: {}".format(numfile))
         sleep(1)
     net.stop()
 
