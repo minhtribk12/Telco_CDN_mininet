@@ -7,6 +7,7 @@ from mininet.log import setLogLevel
 from mininet.node import RemoteController
 from mininet.link import Link, TCLink
 from mininet.cli import CLI 
+from time import sleep
 
 class RingTopo(Topo):
     def __init__(self, **opts):
@@ -52,8 +53,13 @@ def simpleTest():
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
-    CLI(net)
-    #net.pingAll()
+    sleep(5)
+    net.pingAll()
+    h0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 &')
+    h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 &')
+    h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 &')
+    h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 &')
+    h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
     net.stop()
 
 if __name__ == '__main__':

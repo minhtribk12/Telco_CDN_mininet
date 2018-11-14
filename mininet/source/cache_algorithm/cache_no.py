@@ -30,6 +30,7 @@ time_dataset = args.timestamp
 cache_type = args.cachetype
 
 # Init lock to synchronize
+lock_log = threading.Lock()
 lock_cache = threading.Lock()
 lock_client = threading.Lock()
 lock_request = threading.Lock()
@@ -130,6 +131,12 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
                     sent = True
                     break
         counter += 1
+        if (count == 5):
+            lock_log.acquire()
+            with open("log_{}.txt".format(cache_id), "a+") as logfile:
+                logfile.write("Request {} can not be sent".format(data["content_id"]))
+            lock_log.release()
+            break
         time.sleep(1)
     if sent:
         client_soc.close()
@@ -150,6 +157,12 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
                     sent = True
                     break
         counter += 1
+        if (count == 5):
+            lock_log.acquire()
+            with open("log_{}.txt".format(cache_id), "a+") as logfile:
+                logfile.write("Request {} can not be sent".format(data["content_id"]))
+            lock_log.release()
+            break
         time.sleep(1)
     if sent:
         client_soc.close()
@@ -305,14 +318,21 @@ if (cache_id != 100):
         lock_request.release()
     server_thread.join(10.0)
     # Print results for debug
-    print(server.responsed_table["hop_count"].sum())
+    df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
+    sum_hop_count = server.responsed_table["hop_count"].sum()
+    df_result = df_result.append({"cache_id": cache_id, 
+                                    "sum_hop": sum_hop_count}, ignore_index=True)
+    df_result.to_csv("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
+    
     # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 
-
+DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 while True:
+    if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
+        break
     print("Waiting for connection")
-    time.sleep(5)
+    time.sleep(1)
 server.shutdown()
 server.server_close()

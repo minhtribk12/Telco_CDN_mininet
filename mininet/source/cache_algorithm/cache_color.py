@@ -31,6 +31,7 @@ time_dataset = args.timestamp
 cache_type = args.cachetype
 
 # Init lock to synchronize
+lock_log = threading.Lock()
 lock_cache = threading.Lock()
 lock_client = threading.Lock()
 lock_request = threading.Lock()
@@ -53,7 +54,7 @@ request_port_table = {
 }
 
 # Read IP table
-ip_table_path = "./ip_table/ip_table.csv"
+ip_table_path = "~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/ip_table/ip_table.csv"
 df_ip_table = pd.read_csv(ip_table_path,names=["cache_id", "this_ip", "this_port", "red_ip", "red_port", "green_ip", "green_port", "blue_ip", "blue_port", "yellow_ip", "yellow_port", "default_ip", "default_port"], sep=",")
 this_ip_df = df_ip_table[df_ip_table["cache_id"] == cache_id]
 
@@ -73,11 +74,11 @@ request_port_table["yellow"] = this_ip_df.iloc[0]["yellow_port"]
 request_port_table["default"] = this_ip_df.iloc[0]["default_port"]
 
 # Create dataframe containing request with its color
-request_path = "./request/Cache_{}.csv".format(cache_id+1)
+request_path = "~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/request/Cache_{}.csv".format(cache_id+1)
 request = pd.read_csv(request_path,names=["content_id"], sep=";")
 
 # Read content rank & color
-rank_path = "./rank/colored_{}.csv".format(time_dataset)
+rank_path = "~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/rank/colored_{}.csv".format(time_dataset)
 content_rank = pd.read_csv(rank_path,names=["content_id", "color"], sep=";")
 
 # Create requests
@@ -138,6 +139,12 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
                     sent = True
                     break
         counter += 1
+        if (count == 5):
+            lock_log.acquire()
+            with open("log_{}.txt".format(cache_id), "a+") as logfile:
+                logfile.write("Request {} can not be sent".format(data["content_id"]))
+            lock_log.release()
+            break
         time.sleep(1)
     if sent:
         client_soc.close()
@@ -158,6 +165,12 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
                     sent = True
                     break
         counter += 1
+        if (count == 5):
+            lock_log.acquire()
+            with open("log_{}.txt".format(cache_id), "a+") as logfile:
+                logfile.write("Response {} can not be sent".format(data["content_id"]))
+            lock_log.release()
+            break
         time.sleep(1)
     if sent:
         client_soc.close()
@@ -350,13 +363,13 @@ if (cache_id != 100):
     sum_hop_count = server.responsed_table["hop_count"].sum()
     df_result = df_result.append({"cache_id": cache_id, 
                                     "sum_hop": sum_hop_count}, ignore_index=True)
-    df_result.to_csv("./result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
+    df_result.to_csv("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
     
     # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 
-DIR = './result'
+DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 while True:
     if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
         break
