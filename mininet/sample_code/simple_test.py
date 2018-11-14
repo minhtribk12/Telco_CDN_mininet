@@ -68,7 +68,7 @@ def simpleTest():
     print h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
     DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
     if not os.path.exists(DIR):
-    os.makedirs(DIR)
+        os.makedirs(DIR)
     while True:
         if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
             break
