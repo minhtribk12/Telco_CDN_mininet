@@ -141,7 +141,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
         counter += 1
         if (count == 5):
             lock_log.acquire()
-            with open("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/logfile_{}.txt".format(cache_id), "a+") as logfile:
+            with open("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
                 logfile.write("Request {} can not be sent".format(data["content_id"]))
             lock_log.release()
             break

@@ -61,10 +61,10 @@ def simpleTest():
     h2 = net.getNodeByName("h2")
     h3 = net.getNodeByName("h3")
     h100 = net.getNodeByName("h100")
-    h0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 > log_0.txt &')
-    h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 > log_1.txt &')
-    h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 > log_2.txt &')
-    h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 > log_3.txt &')
+    h0.cmd('python mininet/source/cache_algorithm/cache_color.py -i 0 > ./mininet/source/log/log_console_0.txt &')
+    h1.cmd('python mininet/source/cache_algorithm/cache_color.py -i 1 > ./mininet/source/log/log_console_1.txt &')
+    h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 > ./mininet/source/log/log_console_2.txt &')
+    h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 > ./mininet/source/log/log_console_3.txt &')
     h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100 > log_100.txt &')
     DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
     if not os.path.exists(DIR):
