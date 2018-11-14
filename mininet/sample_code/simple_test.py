@@ -15,11 +15,11 @@ class RingTopo(Topo):
         Topo.__init__(self, **opts)
 
         # Add switch
-        switch0 = self.addSwitch('s0')
-        switch1 = self.addSwitch('s1')
-        switch2 = self.addSwitch('s2')
-        switch3 = self.addSwitch('s3')
-        switch100 = self.addSwitch('s100')
+        switch0 = self.addSwitch('s0', protocols='OpenFlow13')
+        switch1 = self.addSwitch('s1', protocols='OpenFlow13')
+        switch2 = self.addSwitch('s2', protocols='OpenFlow13')
+        switch3 = self.addSwitch('s3', protocols='OpenFlow13')
+        switch100 = self.addSwitch('s100', protocols='OpenFlow13')
         
         # Add host
         host0 = self.addHost('h0', mac='00:00:00:00:00:01', ip='10.0.0.1/24' )
@@ -60,6 +60,7 @@ def simpleTest():
     h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 &')
     h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 &')
     h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
+    sleep(2)
     net.stop()
 
 if __name__ == '__main__':
