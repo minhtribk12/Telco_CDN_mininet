@@ -65,7 +65,11 @@ def simpleTest():
     h2.cmd('python mininet/source/cache_algorithm/cache_color.py -i 2 &')
     h3.cmd('python mininet/source/cache_algorithm/cache_color.py -i 3 &')
     print h100.cmd('python mininet/source/cache_algorithm/cache_color.py -i 100')
-    sleep(2)
+    DIR = '~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result_mininet'
+    while True:
+        if (len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]) >= 4):
+            break
+        sleep(1)
     net.stop()
 
 if __name__ == '__main__':
