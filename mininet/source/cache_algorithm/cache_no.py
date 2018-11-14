@@ -4,6 +4,8 @@ from lfu_cache import *
 import socket, json, time, threading, SocketServer, argparse
 from ast import literal_eval
 from jsonsocket import Client, _send, _recv
+import os
+from stat import *
 
 # Parse cache number
 parser = argparse.ArgumentParser(description="Cache Server")
@@ -323,7 +325,7 @@ if (cache_id != 100):
     df_result = df_result.append({"cache_id": cache_id, 
                                     "sum_hop": sum_hop_count}, ignore_index=True)
     df_result.to_csv("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
-    
+    os.chmod("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
     # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
