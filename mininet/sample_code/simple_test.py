@@ -34,11 +34,11 @@ class RingTopo(Topo):
         self.addLink(switch2, switch3)
         self.addLink(switch3, switch0)
         self.addLink(switch100, switch2)
-        self.addLink(host0, switch0)
-        self.addLink(host1, switch1)
-        self.addLink(host2, switch2)
-        self.addLink(host3, switch3)
-        self.addLink(host100, switch100)
+        self.addLink(self.host0, switch0)
+        self.addLink(self.host1, switch1)
+        self.addLink(self.host2, switch2)
+        self.addLink(self.host3, switch3)
+        self.addLink(self.host100, switch100)
         
         # Python's range(N) generates 0..N-1
         # for h in range(n):
