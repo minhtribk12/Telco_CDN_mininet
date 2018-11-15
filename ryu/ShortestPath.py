@@ -31,7 +31,7 @@
 """
 An OpenFlow 1.0 shortest path forwarding implementation.
 """
-
+import time
 import logging
 import struct
 
@@ -64,6 +64,7 @@ class ProjectController(app_manager.RyuApp):
         self.no_of_nodes = 0
         self.no_of_links = 0
         self.i = 0
+        self.topo_check_time = time.time()
 
     # Handy function that lists all attributes in the given object
     def ls(self, obj):
@@ -100,8 +101,9 @@ class ProjectController(app_manager.RyuApp):
         src = eth.src
         dpid = dp.id
 
-        if eth.ethertype == 35020:
+        if eth.ethertype == 35020 and (time.time() - self.topo_check_time > 2):
             self.get_topology_data()
+            self.topo_check_time = time.time()
             return
         # self.mac_to_port.setdefault(dpid, {})
 
@@ -153,7 +155,6 @@ class ProjectController(app_manager.RyuApp):
         links = [(link.dst.dpid, link.src.dpid, {'port': link.dst.port_no}) for link in links_list]
 
         self.net.add_edges_from(links)
-        print "**********List of links"
-        print self.net.edges()
+        print "F**K YOU!"
 
 
