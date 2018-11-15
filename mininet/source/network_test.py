@@ -270,7 +270,7 @@ def simpleTest():
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
-    sleep(5)
+    sleep(20)
     #CLI(net)
     net.pingAll()
     # h0 = net.getNodeByName("h0")
