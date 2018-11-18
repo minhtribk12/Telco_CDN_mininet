@@ -93,7 +93,7 @@ class RingTopo(Topo):
         host17 = self.addHost('h17', mac='00:00:00:00:00:18', ip='10.0.0.18/24' )
         host18 = self.addHost('h18', mac='00:00:00:00:00:19', ip='10.0.0.19/24' )
         host19 = self.addHost('h19', mac='00:00:00:00:00:20', ip='10.0.0.20/24' )
-        host20 = self.addHost('h20', mac='00:00:00:00:00:20', ip='10.0.0.21/24' )
+        host20 = self.addHost('h20', mac='00:00:00:00:00:21', ip='10.0.0.21/24' )
         host21 = self.addHost('h21', mac='00:00:00:00:00:22', ip='10.0.0.22/24' )
         host22 = self.addHost('h22', mac='00:00:00:00:00:23', ip='10.0.0.23/24' )
         host23 = self.addHost('h23', mac='00:00:00:00:00:24', ip='10.0.0.24/24' )
