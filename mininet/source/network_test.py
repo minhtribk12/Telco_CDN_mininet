@@ -267,10 +267,13 @@ def simpleTest():
     controller_ip = '127.0.0.1'
     net = Mininet(topo=topo, controller=lambda a: RemoteController(a, ip=controller_ip, port=6633), link=TCLink)
     net.start()
+    for host in net.hosts:
+        for h in net.hosts:
+            host.cmd("arp -s %s %s" % (h.IP(), h.MAC()))
     print "Dumping host connections"
     dumpNodeConnections(net.hosts)
     print "Testing network connectivity"
-    sleep(20)
+    sleep(5)
     #CLI(net)
     net.pingAll()
     # h0 = net.getNodeByName("h0")
