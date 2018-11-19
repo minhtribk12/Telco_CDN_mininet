@@ -305,6 +305,7 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 ###################################### Main script body ################################################################## 
 # Create server object
+print("0 code reached here!!!")
 server = ThreadedTCPServer((this_ip, this_port), ThreadedTCPRequestHandler)
 DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 if not os.path.exists(DIR):
