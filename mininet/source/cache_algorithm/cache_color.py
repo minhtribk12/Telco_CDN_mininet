@@ -139,6 +139,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
                     sent = True
                     break
         counter += 1
+        print counter
         if (count == 5):
             lock_log.acquire()
             with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
@@ -317,7 +318,7 @@ server_thread.daemon = True
 server_thread.start()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
-time.sleep(2)
+time.sleep(20)
 
 # Starting request content
 if (cache_id != 35):
