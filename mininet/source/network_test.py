@@ -367,7 +367,7 @@ def simpleTest():
     h32.cmd('python mininet/source/cache_algorithm/cache_color.py -i 32 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_32.txt &')
     h33.cmd('python mininet/source/cache_algorithm/cache_color.py -i 33 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_33.txt &')
     h34.cmd('python mininet/source/cache_algorithm/cache_color.py -i 34 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_34.txt &')
-    h35.cmd('python mininet/source/cache_algorithm/cache_color.py -i 34 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_35.txt &')
+    h35.cmd('python mininet/source/cache_algorithm/cache_color.py -i 35 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_35.txt &')
     h36.cmd('python mininet/source/cache_algorithm/cache_color.py -i 36 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_36.txt &')
     h37.cmd('python mininet/source/cache_algorithm/cache_color.py -i 37 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_37.txt &')
     h38.cmd('python mininet/source/cache_algorithm/cache_color.py -i 38 >> /home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_console_38.txt &')
