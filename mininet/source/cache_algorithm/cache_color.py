@@ -210,17 +210,14 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Receive data from connection
         data = _recv(self.request)
         # Increase hop count before process
-        if cache_id == 100:
-            data["hop_count"] = data["hop_count"] + 10
-        else: 
-            data["hop_count"] = data["hop_count"] + 1
+        data["hop_count"] = data["hop_count"] + 1
         # Print out thread to debug
         cur_thread = threading.current_thread()
         print("Receive data in thread {}".format(cur_thread.name))
 
         if (data["is_request"] == 1):
             # This is a request
-            if ((not_in_cache(data["content_id"])) & (cache_id != 100)):
+            if ((not_in_cache(data["content_id"])) & (cache_id != 35)):
                 # Requested content doesn't exist in cache and this cache is not origin (should change when origin change)
                 lock_request.acquire()
                 # Regist a request to a table, which is used to response when this server receive the content from other servers 
@@ -323,7 +320,7 @@ print "Server loop running in thread:", server_thread.name
 time.sleep(2)
 
 # Starting request content
-if (cache_id != 100):
+if (cache_id != 35):
     # It's not a origin
     for i in range(0,df_request.shape[0]):
         # Send one by one 
@@ -372,7 +369,7 @@ if (cache_id != 100):
     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-    if (numfile >= 4):
+    if (numfile >= 54):
         print("All servers are finished: {}".format(numfile))
         break
     print("Number of servers are finished: {}".format(numfile))
