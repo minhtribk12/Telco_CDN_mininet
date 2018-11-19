@@ -318,6 +318,7 @@ server_thread = threading.Thread(target=server.serve_forever)
 # Exit the server thread when the main thread terminates
 server_thread.daemon = True
 server_thread.start()
+print "code reached here!!!"
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
 time.sleep(20)
