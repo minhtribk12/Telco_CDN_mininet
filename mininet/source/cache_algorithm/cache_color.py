@@ -310,15 +310,17 @@ DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/res
 if not os.path.exists(DIR):
     os.makedirs(DIR)
 # Init 2 table as server resources
+print "1 code reached here!!!"
 server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
-
+print "2 code reached here!!!"
 # Start a thread with the server -- that thread will then start one more thread for each request
 server_thread = threading.Thread(target=server.serve_forever)
+print "3 code reached here!!!"
 # Exit the server thread when the main thread terminates
 server_thread.daemon = True
+print "4 code reached here!!!"
 server_thread.start()
-print "code reached here!!!"
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
 time.sleep(20)
