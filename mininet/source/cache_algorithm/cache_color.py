@@ -327,59 +327,59 @@ print "Server loop running in thread:", server_thread.name
 time.sleep(20)
 
 # Starting request content
-if (False):
-    # It's not a origin
-    for i in range(0,df_request.shape[0]):
-        # Send one by one 
-        cur_request = df_request.iloc[i]
-        if not_in_cache(cur_request["content_id"]):
-            # Requested content doesn't exist in cache
-            # Transform dataframe to json format
-            temp = cur_request.to_json(orient="index")
-            df_json = json.loads(temp)
-            # Send request to next server has color matches it's color (should check color first)
-            position = cache_id % 4
-            color_tup = literal_eval(df_json["visited"])
-            color_tup[position] = 0
-            df_json["visited"] = str(color_tup)
+# if (False):
+#     # It's not a origin
+#     for i in range(0,df_request.shape[0]):
+#         # Send one by one 
+#         cur_request = df_request.iloc[i]
+#         if not_in_cache(cur_request["content_id"]):
+#             # Requested content doesn't exist in cache
+#             # Transform dataframe to json format
+#             temp = cur_request.to_json(orient="index")
+#             df_json = json.loads(temp)
+#             # Send request to next server has color matches it's color (should check color first)
+#             position = cache_id % 4
+#             color_tup = literal_eval(df_json["visited"])
+#             color_tup[position] = 0
+#             df_json["visited"] = str(color_tup)
 
-            # Find next Ip to send a request
-            des_ip, des_port = find_destination(visit_cache(df_json["visited"]))
+#             # Find next Ip to send a request
+#             des_ip, des_port = find_destination(visit_cache(df_json["visited"]))
 
-            send_request(df_json,des_ip,des_port,this_ip,this_port)
-            lock_request.acquire()
-            # Update request table
-            server.requested_table = server.requested_table.append({"is_request": df_json["is_request"],
-                                                                    "content_id": df_json["content_id"], 
-                                                                    "hop_count": df_json["hop_count"], 
-                                                                    "color": df_json["color"], 
-                                                                    "source_ip": this_ip,
-                                                                    "source_port": this_port}, ignore_index=True)
-            lock_request.release()
-        else:
-            # Requested content exists in cache
-            lock_response.acquire()
-            # Update responsed table
-            server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
-                                                                    "hop_count": cur_request["hop_count"]}, ignore_index=True)
-            lock_response.release()
-    server_thread.join(10.0)
-    # Print results for debug
-    df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
-    sum_hop_count = server.responsed_table["hop_count"].sum()
-    df_result = df_result.append({"cache_id": cache_id, 
-                                    "sum_hop": sum_hop_count}, ignore_index=True)
-    df_result.to_csv("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
+#             send_request(df_json,des_ip,des_port,this_ip,this_port)
+#             lock_request.acquire()
+#             # Update request table
+#             server.requested_table = server.requested_table.append({"is_request": df_json["is_request"],
+#                                                                     "content_id": df_json["content_id"], 
+#                                                                     "hop_count": df_json["hop_count"], 
+#                                                                     "color": df_json["color"], 
+#                                                                     "source_ip": this_ip,
+#                                                                     "source_port": this_port}, ignore_index=True)
+#             lock_request.release()
+#         else:
+#             # Requested content exists in cache
+#             lock_response.acquire()
+#             # Update responsed table
+#             server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
+#                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
+#             lock_response.release()
+#     server_thread.join(10.0)
+#     # Print results for debug
+#     df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
+#     sum_hop_count = server.responsed_table["hop_count"].sum()
+#     df_result = df_result.append({"cache_id": cache_id, 
+#                                     "sum_hop": sum_hop_count}, ignore_index=True)
+#     df_result.to_csv("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
     
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
-while True:
-    numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-    if (numfile >= 54):
-        print("All servers are finished: {}".format(numfile))
-        break
-    print("Number of servers are finished: {}".format(numfile))
-    time.sleep(1)
+#     # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
+#     # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
+#     # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
+# while True:
+#     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+#     if (numfile >= 54):
+#         print("All servers are finished: {}".format(numfile))
+#         break
+#     print("Number of servers are finished: {}".format(numfile))
+#     time.sleep(1)
 server.shutdown()
 server.server_close()
