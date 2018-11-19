@@ -323,7 +323,7 @@ print "Server loop running in thread:", server_thread.name
 time.sleep(20)
 
 # Starting request content
-if (cache_id != 35):
+if (False):
     # It's not a origin
     for i in range(0,df_request.shape[0]):
         # Send one by one 
