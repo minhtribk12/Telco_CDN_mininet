@@ -130,7 +130,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
     socket = None
     sent = False
     counter = 0
-    while (counter < 5) & (sent == False):
+    while ((counter < 5) & (sent == False)):
         client_soc = Client()
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
@@ -159,7 +159,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
     socket = None
     sent = False
     counter = 0
-    while (counter < 5) & (sent == False):
+    while ((counter < 5) & (sent == False)):
         client_soc = Client()
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
