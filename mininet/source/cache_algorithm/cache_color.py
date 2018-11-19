@@ -135,11 +135,13 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
             if socket != None:
+                print socket
                 if(socket.send(data)):
                     sent = True
                     break
         counter += 1
         print counter
+        print success
         if (count == 5):
             lock_log.acquire()
             with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
