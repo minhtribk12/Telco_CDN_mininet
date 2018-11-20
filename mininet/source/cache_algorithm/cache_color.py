@@ -189,8 +189,6 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             data["source_ip"] = this_ip
             data["source_port"] = this_port
             send_data(data, temp_ip, temp_port)
-            if (temp_port == 10037):
-                self.server.counter += 1
         elif (data["is_request"] == 1):
             # This is a request
             if (not_in_cache(data["content_id"])):
@@ -264,6 +262,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.server.responsed_table = self.server.responsed_table.append({"content_id": data["content_id"],
                                                                 "hop_count": data["hop_count"]}, ignore_index=True)
                     lock_response.release()
+                    if(cache_id == 36):
+                        self.server.counter += 1
                     
                     
 
@@ -337,7 +337,7 @@ if (cache_id != origin_server):
         remain_request_num = server.requested_table[server.requested_table["source_ip"] == this_ip].shape[0]
         print("num responsed: {}, remaining: {}, num request: {}, timer: {}".format(responsed_num, remain_request_num, df_request.shape[0], timer))
         if (cache_id == 36):
-            print(cache_count)
+            print("sent: {}, receive: {}".format(cache_count,server.counter))
         if (responsed_num >= df_request.shape[0]):
             break
         timer += 1
@@ -352,7 +352,6 @@ if (cache_id != origin_server):
     
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-    print(server.counter)
     if (numfile >= 54):
         print("All servers are finished: {}".format(numfile))
         break
