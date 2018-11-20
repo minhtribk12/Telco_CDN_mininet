@@ -135,6 +135,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
             if socket != None:
                 if(socket.send(data)):
                     sent = True
+                    client_soc.close()
                     break
         client_soc.close()
         counter += 1
@@ -145,8 +146,6 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
             lock_log.release()
             break
         time.sleep(1)
-    if sent:
-        client_soc.close()
     
 # Function response a content to other server
 def send_response(data,des_ip,des_port,source_ip,source_port):
@@ -160,6 +159,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
             if socket != None:
                 if(socket.send(data)):
                     sent = True
+                    client_soc.close()
                     break
         client_soc.close()
         counter += 1
@@ -170,8 +170,6 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
             lock_log.release()
             break
         time.sleep(1)
-    if sent:
-        client_soc.close()
 
 def visit_cache(visited):
     visit_tup = literal_eval(visited)
