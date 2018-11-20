@@ -189,6 +189,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             data["source_ip"] = this_ip
             data["source_port"] = this_port
             send_data(data, temp_ip, temp_port)
+            print("data_sent!!!")
         elif (data["is_request"] == 1):
             # This is a request
             if (not_in_cache(data["content_id"])):
