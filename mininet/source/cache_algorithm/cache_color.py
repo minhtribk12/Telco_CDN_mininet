@@ -132,7 +132,7 @@ def send_data(data,des_ip,des_port):
             if socket != None:
                 if(socket.send(data)):
                     client_soc.close()
-                    if (i > 1):
+                    if (i >= 1):
                         print("Data sent!!!")
                     break
         client_soc.close()
