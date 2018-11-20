@@ -139,12 +139,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
                     break
         client_soc.close()
         counter += 1
-        if (count == 5):
-            lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
-                logfile.write("Request {} can not be sent".format(data["content_id"]))
-            lock_log.release()
-            break
+        print(counter)
         time.sleep(1)
     
 # Function response a content to other server
@@ -163,12 +158,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
                     break
         client_soc.close()
         counter += 1
-        if (count == 5):
-            lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
-                logfile.write("Response {} can not be sent".format(data["content_id"]))
-            lock_log.release()
-            break
+        print(counter)
         time.sleep(1)
 
 def visit_cache(visited):
