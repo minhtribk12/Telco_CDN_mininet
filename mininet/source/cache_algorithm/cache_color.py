@@ -360,6 +360,8 @@ if (cache_id != 35):
         # Update responsed table
         responsed_num = server.responsed_table.shape[0]
         lock_response.release()
+        print responsed_num
+        print df.request.shape[0]
         if (responsed_num >= df_request.shape[0]):
             break
         time.sleep(1)
