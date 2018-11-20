@@ -305,8 +305,6 @@ if (cache_id != origin_server):
 
             # Find next Ip to send a request
             des_ip, des_port = find_destination(visit_cache(df_json["visited"]))
-
-            send_data(df_json,des_ip,des_port)
             lock_request.acquire()
             # Update request table
             server.requested_table = server.requested_table.append({"is_request": df_json["is_request"],
@@ -316,6 +314,9 @@ if (cache_id != origin_server):
                                                                     "source_ip": this_ip,
                                                                     "source_port": this_port}, ignore_index=True)
             lock_request.release()
+
+            send_data(df_json,des_ip,des_port)
+            
         else:
             # Requested content exists in cache
             lock_response.acquire()
