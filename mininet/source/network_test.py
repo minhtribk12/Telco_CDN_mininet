@@ -256,11 +256,7 @@ class RingTopo(Topo):
         self.addLink(host56, switch56)
         self.addLink(host60, switch60)
         self.addLink(host64, switch64)
-        
-        # Python's range(N) generates 0..N-1
-        # for h in range(n):
-        #     host = self.addHost('h%s' % (h + 1))
-        #     self.addLink(host, switch)
+    
 
 def simpleTest():
     topo = RingTopo()
