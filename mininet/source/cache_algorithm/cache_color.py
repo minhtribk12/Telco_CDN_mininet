@@ -360,7 +360,7 @@ if (cache_id != 35):
         print("num responsed")
         print(responsed_num)
         print("num request")
-        print df.request.shape[0]
+        print(df_request.shape[0])
         if (responsed_num >= df_request.shape[0]):
             break
         time.sleep(1)
