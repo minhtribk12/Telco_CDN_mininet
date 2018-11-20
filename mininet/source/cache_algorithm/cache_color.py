@@ -135,8 +135,8 @@ def send_data(data,des_ip,des_port):
                     if (i >= 1):
                         print("Data sent!!!")
                     break
+        print("fail to send {} times to {}".format(i+1,des_ip))
         client_soc.close()
-        print(i)
         #time.sleep(1)
     
 # Function response a content to other server
@@ -179,7 +179,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Print out thread to debug
         cur_thread = threading.current_thread()
         print("Receive data in thread {}".format(cur_thread.name))
-        if(cache_id == 36):
+        if(this_port == 10037):
             if (data["source_port"] == 10036):
                 if(data["hop_count"] == 2):
                     self.server.counter += 1
@@ -196,6 +196,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             if (temp_port == 10037):
                 if(data["hop_count"] == 1):
                     self.server.counter += 1
+                    print data["source_port"]
         elif (data["is_request"] == 1):
             # This is a request
             if (not_in_cache(data["content_id"])):
