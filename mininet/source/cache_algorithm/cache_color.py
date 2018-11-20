@@ -111,6 +111,13 @@ def warm_up_cache(cache, df):
     for index, rq in df.iterrows():
         cache.set(rq["content_id"],rq["color"])
 
+def warm_up_color_cache(color_cache, normal_cache, cache_id, df):
+    for index, rq in df.iterrows():
+        if checkColor(cache_id, rq["color"]):
+            color_cache.set(rq["content_id"],rq["color"])
+        else:
+            normal_cache.set(rq["content_id"],rq["color"])
+
 # Check a content in cache, if it doesn't exist, return True
 def not_in_cache(content_id):
     lock_cache.acquire()
@@ -161,8 +168,8 @@ def find_destination(next_visit):
         return request_ip_table["yellow"], request_port_table["yellow"]
 
 # Warm-up Cache
-warm_up_cache(color_cache, df_request)
-warm_up_cache(normal_cache, df_request)
+warm_up_color_cache(color_cache, normal_cache, cache_id, df_request)
+#warm_up_cache(normal_cache, df_request)
 
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 # Class handle connection form other server
@@ -337,7 +344,7 @@ if (cache_id != origin_server):
             server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
-        time.sleep(0.1)
+        time.sleep(1)
     timer = 0
     while(True):
         # Update responsed table
