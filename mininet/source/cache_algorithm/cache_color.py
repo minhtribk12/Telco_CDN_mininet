@@ -189,6 +189,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             data["source_ip"] = this_ip
             data["source_port"] = this_port
             send_data(data, temp_ip, temp_port)
+            if (temp_port == 10037):
+                server.counter += 1
         elif (data["is_request"] == 1):
             # This is a request
             if (not_in_cache(data["content_id"])):
@@ -263,6 +265,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                                                                 "hop_count": data["hop_count"]}, ignore_index=True)
                     lock_response.release()
                     
+                    
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 # Threading Server Class
@@ -278,6 +281,7 @@ if not os.path.exists(DIR):
 # Init 2 table as server resources
 server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
+server.counter = 0
 # Start a thread with the server -- that thread will then start one more thread for each request
 server_thread = threading.Thread(target=server.serve_forever)
 # Exit the server thread when the main thread terminates
@@ -286,7 +290,7 @@ server_thread.start()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
 time.sleep(20)
-
+cache_count = 0
 # Starting request content
 if (cache_id != origin_server):
     # It's not a origin
@@ -315,7 +319,8 @@ if (cache_id != origin_server):
                                                                     "source_ip": this_ip,
                                                                     "source_port": this_port}, ignore_index=True)
             lock_request.release()
-
+            if(cache_id == 36):
+                cache_count += 1
             send_data(df_json,des_ip,des_port)
             
         else:
@@ -331,6 +336,8 @@ if (cache_id != origin_server):
         responsed_num = server.responsed_table.shape[0]
         remain_request_num = server.requested_table[server.requested_table["source_ip"] == this_ip].shape[0]
         print("num responsed: {}, remaining: {}, num request: {}, timer: {}".format(responsed_num, remain_request_num, df_request.shape[0], timer))
+        if (cache_id == 36):
+            print(cache_count)
         if (responsed_num >= df_request.shape[0]):
             break
         timer += 1
@@ -345,6 +352,7 @@ if (cache_id != origin_server):
     
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    print(server.counter)
     if (numfile >= 54):
         print("All servers are finished: {}".format(numfile))
         break
