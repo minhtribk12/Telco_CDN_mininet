@@ -90,7 +90,6 @@ df_request["source_port"] = this_port
 df_request["visited"] = df_request["color"]
 
 
-
 # Create LFU Cache Object with capacity = 100 (should test LRU and compare)
 color_cache = LFUCache(90)
 normal_cache = LFUCache(10)
@@ -356,11 +355,11 @@ if (cache_id != 35):
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
     while(True):
-        lock_response.acquire()
         # Update responsed table
         responsed_num = server.responsed_table.shape[0]
-        lock_response.release()
-        print responsed_num
+        print("num responsed")
+        print(responsed_num)
+        print("num request")
         print df.request.shape[0]
         if (responsed_num >= df_request.shape[0]):
             break
