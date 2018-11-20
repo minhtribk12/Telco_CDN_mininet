@@ -122,44 +122,21 @@ def not_in_cache(content_id):
         return False
 
 # Function send a content request to other server
-def send_request(data,des_ip,des_port,source_ip,source_port):
-    data["source_ip"] = source_ip
-    data["source_port"] = source_port
+def send_data(data,des_ip,des_port):
     socket = None
-    sent = False
-    counter = 0
-    while ((counter < 5) & (sent == False)):
+    for i in range(0,5):
         client_soc = Client()
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
             if socket != None:
                 if(socket.send(data)):
-                    sent = True
                     client_soc.close()
                     break
         client_soc.close()
-        counter += 1
-        print(counter)
-        time.sleep(1)
+        print(i)
+        #time.sleep(1)
     
 # Function response a content to other server
-def send_response(data,des_ip,des_port,source_ip,source_port):
-    socket = None
-    sent = False
-    counter = 0
-    while ((counter < 5) & (sent == False)):
-        client_soc = Client()
-        socket, success = client_soc.connect(des_ip, des_port)
-        if (success):
-            if socket != None:
-                if(socket.send(data)):
-                    sent = True
-                    client_soc.close()
-                    break
-        client_soc.close()
-        counter += 1
-        print(counter)
-        time.sleep(1)
 
 def visit_cache(visited):
     visit_tup = literal_eval(visited)
@@ -226,13 +203,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                 # Find next Ip to send a request
                 des_ip, des_port = find_destination(visit_cache(data["visited"]))
 
-                send_request(data, des_ip, des_port, this_ip, this_port)
-                # if (data["hop_count"] >= hop_thres):
-                #     # This means the server which has the same color with the content also doesn't has requested content (should change when origin change)
-                #     send_request(data, origin_ip, origin_port, this_ip, this_port)
-                # else:
-                #     # Send the request to adjacent server which has the same color with the requested content (should check server color to chose next IP,port)
-                #     send_request(data, next_ip, next_port, this_ip, this_port)
+                send_data(data, des_ip, des_port)
                     
             else:
                 # The requested content was found in cache
@@ -243,7 +214,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                 temp_port = data["source_port"]
                 data["source_ip"] = this_ip
                 data["source_port"] = this_port
-                send_response(data, temp_ip, temp_port, this_ip, this_port)
+                send_data(data, temp_ip, temp_port)
         else:
             # This is a response
             if checkColor(cache_id, data["color"]):
@@ -278,7 +249,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     temp_port = request_["source_port"]
                     data["source_ip"] = this_ip
                     data["source_port"] = this_port
-                    send_response(data, temp_ip, temp_port, this_ip, this_port)
+                    send_data(data, temp_ip, temp_port)
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 # Threading Server Class
@@ -323,7 +294,7 @@ if (cache_id != 35):
             # Find next Ip to send a request
             des_ip, des_port = find_destination(visit_cache(df_json["visited"]))
 
-            send_request(df_json,des_ip,des_port,this_ip,this_port)
+            send_data(df_json,des_ip,des_port)
             lock_request.acquire()
             # Update request table
             server.requested_table = server.requested_table.append({"is_request": df_json["is_request"],
