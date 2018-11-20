@@ -136,6 +136,7 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
                 if(socket.send(data)):
                     sent = True
                     break
+        client_soc.close()
         counter += 1
         if (count == 5):
             lock_log.acquire()
@@ -160,6 +161,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
                 if(socket.send(data)):
                     sent = True
                     break
+        client_soc.close()
         counter += 1
         if (count == 5):
             lock_log.acquire()
