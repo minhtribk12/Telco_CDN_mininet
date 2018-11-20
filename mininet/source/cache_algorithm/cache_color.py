@@ -27,6 +27,7 @@ parser.add_argument('--cachetype', '-c',
 # Export parameters
 args = parser.parse_args()
 cache_id = args.cache_id
+origin_server = 35
 time_dataset = args.timestamp
 cache_type = args.cachetype
 
@@ -131,6 +132,8 @@ def send_data(data,des_ip,des_port):
             if socket != None:
                 if(socket.send(data)):
                     client_soc.close()
+                    if (i > 1):
+                        print("Data sent!!!")
                     break
         client_soc.close()
         print(i)
@@ -176,10 +179,19 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Print out thread to debug
         cur_thread = threading.current_thread()
         print("Receive data in thread {}".format(cur_thread.name))
-
-        if (data["is_request"] == 1):
+        if(cache_id == origin_server):
+            # The requested content was found in cache
+            # Set it to a response
+            data["is_request"] = 0
+            # Update source IP and port before sending the response
+            temp_ip = data["source_ip"]
+            temp_port = data["source_port"]
+            data["source_ip"] = this_ip
+            data["source_port"] = this_port
+            send_data(data, temp_ip, temp_port)
+        elif (data["is_request"] == 1):
             # This is a request
-            if ((not_in_cache(data["content_id"])) & (cache_id != 35)):
+            if (not_in_cache(data["content_id"])):
                 # Requested content doesn't exist in cache and this cache is not origin (should change when origin change)
                 lock_request.acquire()
                 # Regist a request to a table, which is used to response when this server receive the content from other servers 
@@ -275,7 +287,7 @@ print "Server loop running in thread:", server_thread.name
 time.sleep(20)
 
 # Starting request content
-if (cache_id != 35):
+if (cache_id != origin_server):
     # It's not a origin
     for i in range(0,df_request.shape[0]):
         # Send one by one 
@@ -311,15 +323,14 @@ if (cache_id != 35):
             server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
+    timer = 0
     while(True):
         # Update responsed table
         responsed_num = server.responsed_table.shape[0]
-        print("num responsed")
-        print(responsed_num)
-        print("num request")
-        print(df_request.shape[0])
+        print("num responsed: {}, num request: {}, timer: {}".format(responsed_num, df_request.shape[0], timer))
         if (responsed_num >= df_request.shape[0]):
             break
+        timer += 1
         time.sleep(1)
 
     # Print results for debug
