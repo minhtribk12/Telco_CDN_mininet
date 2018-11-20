@@ -82,7 +82,7 @@ class Client(object):
             self.socket.connect((host, port))
             return self, True
         except socket.error as e:
-            print("Error occurs in socket {}: {}".format(self.socket,e))
+            print("Error occurs in socket {}: {} when try to connect to {} in port {}".format(self.socket,e, host, port))
             return self, False
         #self.socket.connect((host, port))
 
