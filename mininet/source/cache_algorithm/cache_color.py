@@ -125,7 +125,6 @@ def not_in_cache(content_id):
 def send_request(data,des_ip,des_port,source_ip,source_port):
     data["source_ip"] = source_ip
     data["source_port"] = source_port
-    #lock_client.acquire()
     socket = None
     sent = False
     counter = 0
@@ -147,11 +146,9 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
         time.sleep(1)
     if sent:
         client_soc.close()
-    #lock_client.release()
     
 # Function response a content to other server
 def send_response(data,des_ip,des_port,source_ip,source_port):
-    #lock_client.acquire()
     socket = None
     sent = False
     counter = 0
@@ -173,7 +170,6 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
         time.sleep(1)
     if sent:
         client_soc.close()
-    #lock_client.release()
 
 def visit_cache(visited):
     visit_tup = literal_eval(visited)
