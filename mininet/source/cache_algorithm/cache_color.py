@@ -135,13 +135,10 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
             if socket != None:
-                print socket
                 if(socket.send(data)):
                     sent = True
                     break
         counter += 1
-        print counter
-        print success
         if (count == 5):
             lock_log.acquire()
             with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
@@ -170,7 +167,7 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
         counter += 1
         if (count == 5):
             lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/logfile_{}.txt".format(cache_id), "a+") as logfile:
+            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
                 logfile.write("Response {} can not be sent".format(data["content_id"]))
             lock_log.release()
             break
@@ -305,22 +302,17 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 ###################################### Main script body ################################################################## 
 # Create server object
-print("0 code reached here!!!")
 server = ThreadedTCPServer((this_ip, this_port), ThreadedTCPRequestHandler)
 DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 if not os.path.exists(DIR):
     os.makedirs(DIR)
 # Init 2 table as server resources
-print "1 code reached here!!!"
 server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
-print "2 code reached here!!!"
 # Start a thread with the server -- that thread will then start one more thread for each request
 server_thread = threading.Thread(target=server.serve_forever)
-print "3 code reached here!!!"
 # Exit the server thread when the main thread terminates
 server_thread.daemon = True
-print "4 code reached here!!!"
 server_thread.start()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
@@ -363,7 +355,15 @@ if (cache_id != 35):
             server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
-    server_thread.join(10.0)
+    while(True):
+        lock_response.acquire()
+        # Update responsed table
+        responsed_num = server.responsed_table.shape[0]
+        lock_response.release()
+        if (responsed_num >= df_request.shape[0]):
+            break
+        time.sleep(1)
+
     # Print results for debug
     df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
     sum_hop_count = server.responsed_table["hop_count"].sum()
