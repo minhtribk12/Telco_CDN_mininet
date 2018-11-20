@@ -337,7 +337,7 @@ if (cache_id != origin_server):
             server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
-        time.sleep(0.05)
+        time.sleep(0.1)
     timer = 0
     while(True):
         # Update responsed table
