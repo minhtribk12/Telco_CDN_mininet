@@ -247,14 +247,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             # Process one by one (should be parallelized)
             for i in range(0, response_list.shape[0]):
                 request_ = response_list.iloc[i]
-                if ((request_["source_ip"] == this_ip) & (request_["source_port"] == this_port)):
-                    # This content was requested by this server's client
-                    lock_response.acquire()
-                    # update response table 
-                    self.server.responsed_table = self.server.responsed_table.append({"content_id": data["content_id"],
-                                                                "hop_count": data["hop_count"]}, ignore_index=True)
-                    lock_response.release()
-                else:
+                if (request_["source_ip"] != this_ip):
                     # This content was requested by other server
                     # Update destination ip, port before sending it
                     temp_ip = request_["source_ip"]
@@ -262,6 +255,14 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     data["source_ip"] = this_ip
                     data["source_port"] = this_port
                     send_data(data, temp_ip, temp_port)
+                else:
+                    # This content was requested by this server's client
+                    lock_response.acquire()
+                    # update response table 
+                    self.server.responsed_table = self.server.responsed_table.append({"content_id": data["content_id"],
+                                                                "hop_count": data["hop_count"]}, ignore_index=True)
+                    lock_response.release()
+                    
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 # Threading Server Class
@@ -342,9 +343,6 @@ if (cache_id != origin_server):
                                     "sum_hop": sum_hop_count}, ignore_index=True)
     df_result.to_csv("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
     
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
     if (numfile >= 54):
