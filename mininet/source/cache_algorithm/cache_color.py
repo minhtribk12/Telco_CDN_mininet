@@ -189,7 +189,9 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             data["source_ip"] = this_ip
             data["source_port"] = this_port
             send_data(data, temp_ip, temp_port)
-            print("data_sent!!!")
+            if (temp_port == 10037):
+                if(data["hop_count"] == 1):
+                    self.server.counter += 1
         elif (data["is_request"] == 1):
             # This is a request
             if (not_in_cache(data["content_id"])):
@@ -229,6 +231,10 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                 data["source_port"] = this_port
                 send_data(data, temp_ip, temp_port)
         else:
+            if(cache_id == 36):
+                if (data["source_port"] == 10036):
+                    if(data["hop_count"] == 2):
+                        self.server.counter += 1
             # This is a response
             if checkColor(cache_id, data["color"]):
                 lock_cache.acquire()
@@ -263,8 +269,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                     self.server.responsed_table = self.server.responsed_table.append({"content_id": data["content_id"],
                                                                 "hop_count": data["hop_count"]}, ignore_index=True)
                     lock_response.release()
-                    if(cache_id == 36):
-                        self.server.counter += 1
+                    
                     
                     
 
@@ -353,6 +358,7 @@ if (cache_id != origin_server):
     
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    print(server.counter)
     if (numfile >= 54):
         print("All servers are finished: {}".format(numfile))
         break
