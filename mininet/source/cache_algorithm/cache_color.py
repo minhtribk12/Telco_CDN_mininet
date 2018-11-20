@@ -295,7 +295,6 @@ server_thread.start()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
 time.sleep(20)
-cache_count = 0
 # Starting request content
 if (cache_id != origin_server):
     # It's not a origin
@@ -351,7 +350,7 @@ if (cache_id != origin_server):
     df_result = df_result.append({"cache_id": cache_id, 
                                     "sum_hop": sum_hop_count}, ignore_index=True)
     df_result.to_csv("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
-    
+
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
     if (numfile >= 54):

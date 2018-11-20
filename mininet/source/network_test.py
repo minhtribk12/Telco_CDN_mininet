@@ -391,12 +391,14 @@ def simpleTest():
     DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
     if not os.path.exists(DIR):
         os.makedirs(DIR)
+    timer = 0
     while True:
         numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
         if (numfile >= 54):
             print("All servers are finished: {}".format(numfile))
             break
-        print("Number of servers are finished: {}".format(numfile))
+        print("Number of servers are finished: {} at times: {}".format(numfile, timer))
+        timer += 1
         sleep(1)
     net.stop()
 
