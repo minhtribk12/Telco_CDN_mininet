@@ -179,6 +179,10 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Print out thread to debug
         cur_thread = threading.current_thread()
         print("Receive data in thread {}".format(cur_thread.name))
+        if(cache_id == 36):
+            if (data["source_port"] == 10036):
+                if(data["hop_count"] == 2):
+                    self.server.counter += 1
         if(cache_id == origin_server):
             # The requested content was found in cache
             # Set it to a response
@@ -231,10 +235,6 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                 data["source_port"] = this_port
                 send_data(data, temp_ip, temp_port)
         else:
-            if(cache_id == 36):
-                if (data["source_port"] == 10036):
-                    if(data["hop_count"] == 2):
-                        self.server.counter += 1
             # This is a response
             if checkColor(cache_id, data["color"]):
                 lock_cache.acquire()
