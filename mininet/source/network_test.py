@@ -397,7 +397,7 @@ def simpleTest():
         if (numfile >= 54):
             print("All servers are finished: {}".format(numfile))
             break
-        print("Number of servers are finished: {} at times: {}".format(numfile, timer))
+        print("Number of servers are finished: {} after {} seconds".format(numfile, timer))
         timer += 1
         sleep(1)
     net.stop()
