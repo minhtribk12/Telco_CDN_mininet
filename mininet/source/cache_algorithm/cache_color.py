@@ -130,23 +130,28 @@ def send_request(data,des_ip,des_port,source_ip,source_port):
     sent = False
     counter = 0
     while ((counter < 5) & (sent == False)):
-        client_soc = Client()
-        socket, success = client_soc.connect(des_ip, des_port)
-        if (success):
-            if socket != None:
-                if(socket.send(data)):
-                    sent = True
-                    break
-        counter += 1
-        if (count == 5):
-            lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
-                logfile.write("Request {} can not be sent".format(data["content_id"]))
-            lock_log.release()
-            break
+        try:
+            client_soc = Client()
+            socket, success = client_soc.connect(des_ip, des_port)
+            if (success):
+                if socket != None:
+                    if(socket.send(data)):
+                        sent = True
+                        client_soc.close()
+                        break
+            client_soc.close()
+        except Exception e:
+            counter += 1
+            print e 
+            if success:
+                client_soc.close()
+            if (count == 5):
+                lock_log.acquire()
+                with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
+                    logfile.write("Request {} can not be sent".format(data["content_id"]))
+                lock_log.release()
+                break
         time.sleep(1)
-    if sent:
-        client_soc.close()
     #lock_client.release()
     
 # Function response a content to other server
@@ -156,23 +161,28 @@ def send_response(data,des_ip,des_port,source_ip,source_port):
     sent = False
     counter = 0
     while ((counter < 5) & (sent == False)):
-        client_soc = Client()
-        socket, success = client_soc.connect(des_ip, des_port)
-        if (success):
-            if socket != None:
-                if(socket.send(data)):
-                    sent = True
-                    break
-        counter += 1
-        if (count == 5):
-            lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
-                logfile.write("Response {} can not be sent".format(data["content_id"]))
-            lock_log.release()
-            break
+        try:
+            client_soc = Client()
+            socket, success = client_soc.connect(des_ip, des_port)
+            if (success):
+                if socket != None:
+                    if(socket.send(data)):
+                        sent = True
+                        client_soc.close()
+                        break
+            client_soc.close()
+        except Exception e:
+            counter += 1
+            print e
+            if success:
+                client_soc.close()
+            if (count == 5):
+                lock_log.acquire()
+                with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
+                    logfile.write("Response {} can not be sent".format(data["content_id"]))
+                lock_log.release()
+                break
         time.sleep(1)
-    if sent:
-        client_soc.close()
     #lock_client.release()
 
 def visit_cache(visited):
