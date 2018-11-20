@@ -328,7 +328,7 @@ if (cache_id != origin_server):
     while(True):
         # Update responsed table
         responsed_num = server.responsed_table.shape[0]
-        remain_request_num = server.requested_table.shape[0]
+        remain_request_num = server.requested_table[server.requested_table["source_ip"] == this_ip].shape[0]
         print("num responsed: {}, remaining: {}, num request: {}, timer: {}".format(responsed_num, remain_request_num, df_request.shape[0], timer))
         if (responsed_num >= df_request.shape[0]):
             break
