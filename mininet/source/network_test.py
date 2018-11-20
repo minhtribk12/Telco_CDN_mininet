@@ -275,7 +275,7 @@ def simpleTest():
     print "Testing network connectivity"
     sleep(2)
     #CLI(net)
-    #net.pingAll()
+    net.pingAll()
     h0 = net.getNodeByName("h0")
     h1 = net.getNodeByName("h1")
     h2 = net.getNodeByName("h2")
