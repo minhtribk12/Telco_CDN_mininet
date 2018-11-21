@@ -186,8 +186,9 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Print out thread to debug
         cur_thread = threading.current_thread()
         print("Receive data in thread {}".format(cur_thread.name))
+
         if(cache_id == origin_server):
-            # The requested content was found in cache
+            # This is origin server 
             # Set it to a response
             data["is_request"] = 0
             # Update source IP and port before sending the response
@@ -196,6 +197,7 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             data["source_ip"] = this_ip
             data["source_port"] = this_port
             send_data(data, temp_ip, temp_port)
+
         elif (data["is_request"] == 1):
             # This is a request
             if (not_in_cache(data["content_id"])):
@@ -287,6 +289,7 @@ if not os.path.exists(DIR):
 # Init 2 table as server resources
 server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
+
 # Start a thread with the server -- that thread will then start one more thread for each request
 server_thread = threading.Thread(target=server.serve_forever)
 # Exit the server thread when the main thread terminates
@@ -295,6 +298,7 @@ server_thread.start()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
 time.sleep(20)
+
 # Starting request content
 if (cache_id != origin_server):
     # It's not a origin
@@ -314,6 +318,7 @@ if (cache_id != origin_server):
 
             # Find next Ip to send a request
             des_ip, des_port = find_destination(visit_cache(df_json["visited"]))
+            
             lock_request.acquire()
             # Update request table
             server.requested_table = server.requested_table.append({"is_request": df_json["is_request"],

@@ -4,8 +4,7 @@ from lfu_cache import *
 import socket, json, time, threading, SocketServer, argparse
 from ast import literal_eval
 from jsonsocket import Client, _send, _recv
-import os
-from stat import *
+import os, os.path
 
 # Parse cache number
 parser = argparse.ArgumentParser(description="Cache Server")
@@ -28,6 +27,7 @@ parser.add_argument('--cachetype', '-c',
 # Export parameters
 args = parser.parse_args()
 cache_id = args.cache_id
+origin_server = 35
 time_dataset = args.timestamp
 cache_type = args.cachetype
 
@@ -55,7 +55,7 @@ request_port_table = {
 }
 
 # Read IP table
-ip_table_path = "./ip_table/ip_table.csv"
+ip_table_path = "/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/ip_table/ip_table.csv"
 df_ip_table = pd.read_csv(ip_table_path,names=["cache_id", "this_ip", "this_port", "red_ip", "red_port", "green_ip", "green_port", "blue_ip", "blue_port", "yellow_ip", "yellow_port", "default_ip", "default_port"], sep=",")
 this_ip_df = df_ip_table[df_ip_table["cache_id"] == cache_id]
 
@@ -75,16 +75,19 @@ request_port_table["yellow"] = this_ip_df.iloc[0]["yellow_port"]
 request_port_table["default"] = this_ip_df.iloc[0]["default_port"]
 
 # Create dataframe containing request with its color
-request_path = "./request/Cache_{}.csv".format(cache_id+1)
+request_path = "/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/request/Cache_{}.csv".format(cache_id+1)
 request = pd.read_csv(request_path,names=["content_id"], sep=";")
 
-rank_path = "./rank/colored_{}.csv".format(time_dataset)
+# Read content rank & color
+rank_path = "/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/rank/colored_{}.csv".format(time_dataset)
 content_rank = pd.read_csv(rank_path,names=["content_id", "color"], sep=";")
+
+# Create requests
 df_request = pd.merge(request, content_rank, on="content_id", how="left")
 df_request["is_request"] = 1
 df_request["hop_count"] = 0
-df_request["source_ip"] = "127.0.0.1"
-df_request["source_port"] = 10000+cache_id
+df_request["source_ip"] = this_ip
+df_request["source_port"] = this_port
 df_request["visited"] = df_request["color"]
 
 
@@ -117,58 +120,24 @@ def not_in_cache(content_id):
     else:
         return False
 
-def send_request(data,des_ip,des_port,source_ip,source_port):
-    data["source_ip"] = source_ip
-    data["source_port"] = source_port
-    #lock_client.acquire()
+# Function send a content request to other server
+def send_data(data,des_ip,des_port):
     socket = None
-    sent = False
-    counter = 0
-    while (counter < 5) & (sent == False):
+    for i in range(0,5):
         client_soc = Client()
         socket, success = client_soc.connect(des_ip, des_port)
         if (success):
             if socket != None:
                 if(socket.send(data)):
-                    sent = True
+                    client_soc.close()
+                    if (i >= 1):
+                        print("Data sent!!!")
                     break
-        counter += 1
-        if (count == 5):
-            lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
-                logfile.write("Request {} can not be sent".format(data["content_id"]))
-            lock_log.release()
-            break
-        time.sleep(1)
-    if sent:
+        print("fail to send {} times to {}".format(i+1,des_ip))
         client_soc.close()
-    #lock_client.release()
+        #time.sleep(1)
     
 # Function response a content to other server
-def send_response(data,des_ip,des_port,source_ip,source_port):
-    #lock_client.acquire()
-    socket = None
-    sent = False
-    counter = 0
-    while (counter < 5) & (sent == False):
-        client_soc = Client()
-        socket, success = client_soc.connect(des_ip, des_port)
-        if (success):
-            if socket != None:
-                if(socket.send(data)):
-                    sent = True
-                    break
-        counter += 1
-        if (count == 5):
-            lock_log.acquire()
-            with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/logfile_{}.txt".format(cache_id), "a+") as logfile:
-                logfile.write("Request {} can not be sent".format(data["content_id"]))
-            lock_log.release()
-            break
-        time.sleep(1)
-    if sent:
-        client_soc.close()
-    #lock_client.release()
 
 def visit_cache(visited):
     visit_tup = literal_eval(visited)
@@ -201,51 +170,48 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Receive data from connection
         data = _recv(self.request)
         # Increase hop count before process
-        if cache_id == 100:
-            data["hop_count"] = data["hop_count"] + 10
-        else: 
-            data["hop_count"] = data["hop_count"] + 1
+        data["hop_count"] = data["hop_count"] + 1
         # Print out thread to debug
         cur_thread = threading.current_thread()
         print("Receive data in thread {}".format(cur_thread.name))
 
-        if (data["is_request"] == 1):
-            if (cache_id != 100):
-                # This is a request
-                # Requested content doesn't exist in cache and this cache is not origin (should change when origin change)
-                lock_request.acquire()
-                # Regist a request to a table, which is used to response when this server receive the content from other servers 
-                self.server.requested_table = self.server.requested_table.append({"is_request": data["is_request"],
-                                                                                    "content_id": data["content_id"], 
-                                                                                    "hop_count": data["hop_count"], 
-                                                                                    "color": data["color"], 
-                                                                                    "source_ip": data["source_ip"],
-                                                                                    "source_port": data["source_port"]}, ignore_index=True)
-                lock_request.release()
-                # Update source IP and port before send the request to other server
-                data["source_ip"] = this_ip
-                data["source_port"] = this_port
+        if(cache_id == origin_server):
+            # This is origin server 
+            # Set it to a response
+            data["is_request"] = 0
+            # Update source IP and port before sending the response
+            temp_ip = data["source_ip"]
+            temp_port = data["source_port"]
+            data["source_ip"] = this_ip
+            data["source_port"] = this_port
+            send_data(data, temp_ip, temp_port)
 
-                des_ip = request_ip_table["default"]
-                des_port = request_port_table["default"]
+        elif (data["is_request"] == 1):
+            # This is a request
+            # Requested content doesn't exist in cache and this cache is not origin (should change when origin change)
+            lock_request.acquire()
+            # Regist a request to a table, which is used to response when this server receive the content from other servers 
+            self.server.requested_table = self.server.requested_table.append({"is_request": data["is_request"],
+                                                                                "content_id": data["content_id"], 
+                                                                                "hop_count": data["hop_count"], 
+                                                                                "color": data["color"], 
+                                                                                "source_ip": data["source_ip"],
+                                                                                "source_port": data["source_port"]}, ignore_index=True)
+            lock_request.release()
+            # Update source IP and port before send the request to other server
+            data["source_ip"] = this_ip
+            data["source_port"] = this_port
 
-                send_request(data, des_ip, des_port, this_ip, this_port)
-                # if (data["hop_count"] >= hop_thres):
-                #     # This means the server which has the same color with the content also doesn't has requested content (should change when origin change)
-                #     send_request(data, origin_ip, origin_port, this_ip, this_port)
-                # else:
-                #     # Send the request to adjacent server which has the same color with the requested content (should check server color to chose next IP,port)
-                #     send_request(data, next_ip, next_port, this_ip, this_port)
-            else:
-                # The requested content was found in cache
-                # Set it to a response
-                data["is_request"] = 0
-                # Update source IP and port before sending the response
-                temp_ip = data["source_ip"]
-                temp_port = data["source_port"]
-                data["source_ip"] = this_ip
-                data["source_port"] = this_port
-                send_response(data, temp_ip, temp_port, this_ip, this_port)             
+            des_ip = request_ip_table["default"]
+            des_port = request_port_table["default"]
+
+            send_data(data, des_ip, des_port)
+            # if (data["hop_count"] >= hop_thres):
+            #     # This means the server which has the same color with the content also doesn't has requested content (should change when origin change)
+            #     send_request(data, origin_ip, origin_port, this_ip, this_port)
+            # else:
+            #     # Send the request to adjacent server which has the same color with the requested content (should check server color to chose next IP,port)
+            #     send_request(data, next_ip, next_port, this_ip, this_port)          
         else:
             # This is a response
             # Check response table to before fowarding content to servers who requested for this content
@@ -256,21 +222,21 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             # Process one by one (should be parallelized)
             for i in range(0, response_list.shape[0]):
                 request_ = response_list.iloc[i]
-                if ((request_["source_ip"] == this_ip) & (request_["source_port"] == this_port)):
-                    # This content was requested by this server's client
-                    lock_response.acquire()
-                    # update response table 
-                    self.server.responsed_table = self.server.responsed_table.append({"content_id": data["content_id"],
-                                                                "hop_count": data["hop_count"]}, ignore_index=True)
-                    lock_response.release()
-                else:
+                if (request_["source_ip"] != this_ip):
                     # This content was requested by other server
                     # Update destination ip, port before sending it
                     temp_ip = request_["source_ip"]
                     temp_port = request_["source_port"]
                     data["source_ip"] = this_ip
                     data["source_port"] = this_port
-                    send_response(data, temp_ip, temp_port, this_ip, this_port)
+                    send_data(data, temp_ip, temp_port)
+                else:
+                    # This content was requested by this server's client
+                    lock_response.acquire()
+                    # update response table 
+                    self.server.responsed_table = self.server.responsed_table.append({"content_id": data["content_id"],
+                                                                "hop_count": data["hop_count"]}, ignore_index=True)
+                    lock_response.release()
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 # Threading Server Class
@@ -294,10 +260,10 @@ server_thread.daemon = True
 server_thread.start()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
-time.sleep(2)
+time.sleep(20)
 
 # Starting request content
-if (cache_id != 100):
+if (cache_id != origin_server):
     # It's not a origin
     for i in range(0,df_request.shape[0]):
         # Send one by one 
@@ -310,7 +276,6 @@ if (cache_id != 100):
         des_ip = request_ip_table["default"]
         des_port = request_port_table["default"]
 
-        send_request(df_json,des_ip,des_port,this_ip,this_port)
         lock_request.acquire()
         # Update request table
         server.requested_table = server.requested_table.append({"is_request": df_json["is_request"],
@@ -320,17 +285,25 @@ if (cache_id != 100):
                                                                 "source_ip": this_ip,
                                                                 "source_port": this_port}, ignore_index=True)
         lock_request.release()
-    server_thread.join(10.0)
+        send_data(df_json,des_ip,des_port)
+        time.sleep(1)
+    timer = 0
+    while(True):
+        # Update responsed table
+        responsed_num = server.responsed_table.shape[0]
+        remain_request_num = server.requested_table[server.requested_table["source_ip"] == this_ip].shape[0]
+        print("num responsed: {}, remaining: {}, num request: {}, timer: {}".format(responsed_num, remain_request_num, df_request.shape[0], timer))
+        if (responsed_num >= df_request.shape[0]):
+            break
+        timer += 1
+        time.sleep(1)
+
     # Print results for debug
     df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
     sum_hop_count = server.responsed_table["hop_count"].sum()
     df_result = df_result.append({"cache_id": cache_id, 
                                     "sum_hop": sum_hop_count}, ignore_index=True)
-    df_result.to_csv("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
-    os.chmod("~/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 0].count())
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 2].count())
-    # print(server.responsed_table[server.responsed_table["hop_count"] == 4].count())
+    df_result.to_csv("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result/result_{}.csv".format(cache_id), header=False, sep=";", index=False)
 
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
