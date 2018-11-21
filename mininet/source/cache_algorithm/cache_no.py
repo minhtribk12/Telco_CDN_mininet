@@ -293,7 +293,7 @@ if (cache_id != origin_server):
                                                                 "num": df_json["num"]}, ignore_index=True)
         lock_request.release()
         send_data(df_json,des_ip,des_port)
-        time.sleep(1)
+        time.sleep(3)
     timer = 0
     while(True):
         # Update responsed table
