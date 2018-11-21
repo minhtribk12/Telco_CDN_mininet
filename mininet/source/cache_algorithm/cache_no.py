@@ -90,6 +90,7 @@ df_request["source_ip"] = this_ip
 df_request["source_port"] = this_port
 df_request["visited"] = df_request["color"]
 df_request["cache"] = cache_id
+df_request["num"] = 0
 
 
 
@@ -198,7 +199,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                                                                                 "color": data["color"], 
                                                                                 "source_ip": data["source_ip"],
                                                                                 "source_port": data["source_port"],
-                                                                                "cache": data["cache"]}, ignore_index=True)
+                                                                                "cache": data["cache"],
+                                                                                "num": data["num"]}, ignore_index=True)
             lock_request.release()
             # Update source IP and port before send the request to other server
             data["source_ip"] = this_ip
@@ -218,8 +220,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             # This is a response
             # Check response table to before fowarding content to servers who requested for this content
             lock_request.acquire()
-            response_list = self.server.requested_table[(self.server.requested_table["content_id"] == data["content_id"]) & (self.server.requested_table["cache"] == data["cache"])]
-            self.server.requested_table = self.server.requested_table[(self.server.requested_table["content_id"] != data["content_id"]) | (self.server.requested_table["cache"] != data["cache"])]
+            response_list = self.server.requested_table[(self.server.requested_table["content_id"] == data["content_id"]) & (self.server.requested_table["cache"] == data["cache"]) & (self.server.requested_table["num"] == data["num"])]
+            self.server.requested_table = self.server.requested_table[(self.server.requested_table["content_id"] != data["content_id"]) | (self.server.requested_table["cache"] != data["cache"]) | (self.server.requested_table["num"] != data["num"])]
             lock_request.release()
             # Process one by one (should be parallelized)
             for i in range(0, response_list.shape[0]):
@@ -252,7 +254,7 @@ DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/res
 if not os.path.exists(DIR):
     os.makedirs(DIR)
 # Init 2 table as server resources
-server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port", "cache"])
+server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port", "cache", "num"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
 
 # Start a thread with the server -- that thread will then start one more thread for each request
@@ -270,6 +272,7 @@ if (cache_id != origin_server):
     for i in range(0,df_request.shape[0]):
         # Send one by one 
         cur_request = df_request.iloc[i]
+        cur_request["num"] = i
         # Requested content doesn't exist in cache
         # Transform dataframe to json format
         temp = cur_request.to_json(orient="index")
@@ -286,7 +289,8 @@ if (cache_id != origin_server):
                                                                 "color": df_json["color"], 
                                                                 "source_ip": this_ip,
                                                                 "source_port": this_port,
-                                                                "cache": cache_id}, ignore_index=True)
+                                                                "cache": cache_id,
+                                                                "num": df_json["num"]}, ignore_index=True)
         lock_request.release()
         send_data(df_json,des_ip,des_port)
         time.sleep(1)
