@@ -322,7 +322,7 @@ if (cache_id != origin_server):
         if (responsed_num >= df_request.shape[0]):
             break
         timer += 1
-        time.sleep(2)
+        time.sleep(1)
 
     # Print results for debug
     df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
@@ -333,7 +333,7 @@ if (cache_id != origin_server):
 
 while True:
     numfile = len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
-    if (numfile >= 4):
+    if (numfile >= 54):
         print("All servers are finished: {}".format(numfile))
         break
     print("Number of servers are finished: {}".format(numfile))
