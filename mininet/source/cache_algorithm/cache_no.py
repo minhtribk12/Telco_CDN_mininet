@@ -89,6 +89,7 @@ df_request["hop_count"] = 0
 df_request["source_ip"] = this_ip
 df_request["source_port"] = this_port
 df_request["visited"] = df_request["color"]
+df_request["cache"] = cache_id
 
 
 
@@ -196,7 +197,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
                                                                                 "hop_count": data["hop_count"], 
                                                                                 "color": data["color"], 
                                                                                 "source_ip": data["source_ip"],
-                                                                                "source_port": data["source_port"]}, ignore_index=True)
+                                                                                "source_port": data["source_port"],
+                                                                                "cache": data["cache"]}, ignore_index=True)
             lock_request.release()
             # Update source IP and port before send the request to other server
             data["source_ip"] = this_ip
@@ -216,8 +218,8 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
             # This is a response
             # Check response table to before fowarding content to servers who requested for this content
             lock_request.acquire()
-            response_list = self.server.requested_table[self.server.requested_table["content_id"] == data["content_id"]]
-            self.server.requested_table = self.server.requested_table[self.server.requested_table["content_id"] != data["content_id"]]
+            response_list = self.server.requested_table[(self.server.requested_table["content_id"] == data["content_id"]) & (self.server.requested_table["cache"] == data["cache"])]
+            self.server.requested_table = self.server.requested_table[(self.server.requested_table["content_id"] != data["content_id"]) | (self.server.requested_table["cache"] != data["cache"])]
             lock_request.release()
             # Process one by one (should be parallelized)
             for i in range(0, response_list.shape[0]):
@@ -250,7 +252,7 @@ DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/res
 if not os.path.exists(DIR):
     os.makedirs(DIR)
 # Init 2 table as server resources
-server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port"])
+server.requested_table = pd.DataFrame(columns=["is_request", "content_id", "hop_count", "color", "source_ip", "source_port", "cache"])
 server.responsed_table = pd.DataFrame(columns=["content_id", "hop_count"])
 
 # Start a thread with the server -- that thread will then start one more thread for each request
@@ -283,7 +285,8 @@ if (cache_id != origin_server):
                                                                 "hop_count": df_json["hop_count"], 
                                                                 "color": df_json["color"], 
                                                                 "source_ip": this_ip,
-                                                                "source_port": this_port}, ignore_index=True)
+                                                                "source_port": this_port,
+                                                                "cache": cache_id}, ignore_index=True)
         lock_request.release()
         send_data(df_json,des_ip,des_port)
         time.sleep(1)
