@@ -296,7 +296,7 @@ if (cache_id != origin_server):
         if (responsed_num >= df_request.shape[0]):
             break
         timer += 1
-        time.sleep(1)
+        time.sleep(3)
 
     # Print results for debug
     df_result = pd.DataFrame(columns=["cache_id", "sum_hop"])
