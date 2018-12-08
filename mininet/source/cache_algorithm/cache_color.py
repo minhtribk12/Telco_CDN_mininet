@@ -186,8 +186,9 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         # Print out thread to debug
         cur_thread = threading.current_thread()
         lock_log.acquire()
-        with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+") as f:
-            f.write("Receive data in thread {} \n".format(cur_thread.name))
+        f = open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+")
+        f.write("Receive data in thread {} \n".format(cur_thread.name))
+        f.close()
         lock_log.release()
         print("Receive data in thread {}".format(cur_thread.name))
 
@@ -286,8 +287,9 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 ###################################### Main script body ################################################################## 
 # Create server object
-with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+") as f:
-    f.write("Start script!!!!\n")
+f = open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+")
+f.write("Start script!!!!\n")
+f.close()
 server = ThreadedTCPServer((this_ip, this_port), ThreadedTCPRequestHandler)
 DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 if not os.path.exists(DIR):
@@ -302,8 +304,9 @@ server_thread = threading.Thread(target=server.serve_forever)
 server_thread.daemon = True
 server_thread.start()
 lock_log.acquire()
-with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+") as f:
-    f.write("Server loop running in thread: {}\n".format(server_thread.mane))
+f = open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+")
+f.write("Server loop running in thread: {}\n".format(server_thread.mane))
+f.close()
 lock_log.release()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
@@ -348,8 +351,9 @@ if (cache_id != origin_server):
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
         lock_log.acquire()
-        with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+") as f:
-            f.write("Request {} sent!!! \n".format(i))
+        f = open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+")
+        f.write("Request {} sent!!! \n".format(i))
+        f.close()
         lock_log.release()
         time.sleep(1)
     timer = 0
@@ -358,8 +362,9 @@ if (cache_id != origin_server):
         responsed_num = server.responsed_table.shape[0]
         remain_request_num = server.requested_table[server.requested_table["source_ip"] == this_ip].shape[0]
         lock_log.acquire()
-        with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+") as f:
-            f.write("num responsed: {}, remaining: {}, num request: {}, timer: {} \n".format(responsed_num, remain_request_num, df_request.shape[0], timer))
+        f = open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+")
+        f.write("num responsed: {}, remaining: {}, num request: {}, timer: {} \n".format(responsed_num, remain_request_num, df_request.shape[0], timer))
+        f.close()
         lock_log.release()
         print("num responsed: {}, remaining: {}, num request: {}, timer: {}".format(responsed_num, remain_request_num, df_request.shape[0], timer))
         if (responsed_num >= df_request.shape[0]):
