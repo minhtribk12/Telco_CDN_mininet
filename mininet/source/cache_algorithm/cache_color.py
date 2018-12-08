@@ -185,6 +185,10 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         data["hop_count"] = data["hop_count"] + 1
         # Print out thread to debug
         cur_thread = threading.current_thread()
+        lock_log.acquire()
+        with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log_{}.txt".format(cache_id), "a") as f:
+            f.write("Receive data in thread {} \n".format(cur_thread.name))
+        lock_log.release()
         print("Receive data in thread {}".format(cur_thread.name))
 
         if(cache_id == origin_server):
@@ -295,6 +299,10 @@ server_thread = threading.Thread(target=server.serve_forever)
 # Exit the server thread when the main thread terminates
 server_thread.daemon = True
 server_thread.start()
+lock_log.acquire()
+with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log_{}.txt".format(cache_id), "a") as f:
+    f.write("Server loop running in thread: {}\n".format(server_thread.mane))
+lock_log.release()
 print "Server loop running in thread:", server_thread.name
 # Wait for all servers are init (should use signal)
 time.sleep(20)
@@ -337,12 +345,20 @@ if (cache_id != origin_server):
             server.responsed_table = server.responsed_table.append({"content_id": cur_request["content_id"], 
                                                                     "hop_count": cur_request["hop_count"]}, ignore_index=True)
             lock_response.release()
+        lock_log.acquire()
+        with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log_{}.txt".format(cache_id), "a") as f:
+            f.write("Request {} sent!!! \n".format(i))
+        lock_log.release()
         time.sleep(1)
     timer = 0
     while(True):
         # Update responsed table
         responsed_num = server.responsed_table.shape[0]
         remain_request_num = server.requested_table[server.requested_table["source_ip"] == this_ip].shape[0]
+        lock_log.acquire()
+        with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log_{}.txt".format(cache_id), "a") as f:
+            f.write("num responsed: {}, remaining: {}, num request: {}, timer: {} \n".format(responsed_num, remain_request_num, df_request.shape[0], timer))
+        lock_log.release()
         print("num responsed: {}, remaining: {}, num request: {}, timer: {}".format(responsed_num, remain_request_num, df_request.shape[0], timer))
         if (responsed_num >= df_request.shape[0]):
             break
