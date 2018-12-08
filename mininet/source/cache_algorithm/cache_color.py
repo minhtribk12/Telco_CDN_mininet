@@ -286,6 +286,8 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 ###################################### Main script body ################################################################## 
 # Create server object
+with open("/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/log/log_{}.txt".format(cache_id), "a+") as f:
+    f.write("Start script!!!!\n")
 server = ThreadedTCPServer((this_ip, this_port), ThreadedTCPRequestHandler)
 DIR = '/home/hpcc/workspace/telco_cdn_mininet/mininet/source/cache_algorithm/result'
 if not os.path.exists(DIR):
